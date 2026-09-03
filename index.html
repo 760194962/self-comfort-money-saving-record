@@ -488,6 +488,8 @@
     ];
   }
   function snap(){var o={};for(var k in currentRates)o[k]=currentRates[k];return o}
+  // tidy a rate to 6 significant figures (keeps accuracy, drops the ugly long tail)
+  function roundRate(v){return (v!=null&&isFinite(v)&&v!==0)?+Number(v).toPrecision(6):v}
 
   // ---- rate math ----
   function rateOf(map,code){var v=map&&map[code];return (v==null||!isFinite(v))?(CMAP[code]?CMAP[code].rate:1):v}
@@ -520,7 +522,7 @@
         if(xhr.status>=200&&xhr.status<300){
           try{
             var j=JSON.parse(xhr.responseText),out={CNY:1},got=false;
-            if(j&&j.rates)for(var code in j.rates){var per=+j.rates[code];if(per>0&&isFinite(per)){out[code]=1/per;got=true}}
+            if(j&&j.rates)for(var code in j.rates){var per=+j.rates[code];if(per>0&&isFinite(per)){out[code]=roundRate(1/per);got=true}}
             if(got)finish(out,j.date||null,"");else finish(null,null,"返回数据缺少汇率");
           }catch(e){finish(null,null,"解析失败")}
         }else finish(null,null,"HTTP "+(xhr.status||0));
@@ -922,7 +924,7 @@
       var isBase=c.code==="CNY";
       row.innerHTML='<div class="rc">'+c.code+' '+c.sym+'<small>'+c.name+'</small></div>'+
         '<span class="eq">1 = ¥</span>'+
-        '<input type="text" inputmode="decimal" value="'+(isBase?"1":currentRates[c.code])+'"'+(isBase?" disabled":"")+' aria-label="'+c.code+'汇率">';
+        '<input type="text" inputmode="decimal" value="'+(isBase?"1":roundRate(currentRates[c.code]))+'"'+(isBase?" disabled":"")+' aria-label="'+c.code+'汇率">';
       if(!isBase){
         var inp=row.querySelector("input");
         inp.addEventListener("change",function(){
@@ -1009,7 +1011,7 @@
     CURRENCIES.forEach(function(c){
       if(c.code==="CNY")return;                     // base currency, always 1
       var val=(snapRates[c.code]!=null&&isFinite(snapRates[c.code]))?snapRates[c.code]:currentRates[c.code];
-      val=Math.round(val*1e6)/1e6;
+      val=roundRate(val);
       var row=document.createElement("div");row.className="rate-row";
       row.innerHTML='<div class="rc">'+c.code+' '+c.sym+'<small>'+c.name+'</small></div>'+
         '<span class="eq">1 = ¥</span>'+
@@ -1021,7 +1023,7 @@
   function fillEditRateInputs(map){
     $("#editRateList").querySelectorAll("input[data-code]").forEach(function(inp){
       var code=inp.getAttribute("data-code"),v=(map&&map[code]!=null&&map[code]>0)?map[code]:null;
-      if(v!=null)inp.value=(Math.round(v*1e6)/1e6);
+      if(v!=null)inp.value=roundRate(v);
     });
   }
   function fetchEditRatesForDate(){
