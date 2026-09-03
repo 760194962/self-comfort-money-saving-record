@@ -119,6 +119,10 @@
   .chip{border:1px solid var(--line);background:transparent;color:var(--ink-soft);border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:.16s;}
   .chip:hover{border-color:var(--mint);color:var(--mint)}
   .chip.on{background:var(--mint);border-color:var(--mint);color:#fff}
+  .chip.freq{border-color:color-mix(in oklab,var(--gold) 55%, var(--line));color:color-mix(in oklab,var(--gold) 78%, var(--ink-soft))}
+  .chip.freq::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-right:6px;vertical-align:middle;opacity:.9}
+  .chip.freq:hover{border-color:var(--gold);color:var(--gold)}
+  .chip.freq.on{background:var(--gold);border-color:var(--gold);color:#3a2c07}
   .save-btn{margin-top:14px;width:100%;border:0;cursor:pointer;background:linear-gradient(180deg,var(--mint), color-mix(in oklab,var(--mint) 82%, #000));color:#fff;border-radius:14px;padding:15px;font-size:16.5px;font-weight:700;font-family:var(--sans);letter-spacing:1px;box-shadow:0 10px 22px -10px color-mix(in oklab,var(--mint) 70%, transparent);transition:transform .08s, filter .18s;position:relative;overflow:hidden;}
   .save-btn:hover{filter:brightness(1.05)}
   .save-btn:active{transform:translateY(1px) scale(.995)}
@@ -439,18 +443,44 @@
     $("#amtSym").textContent=CMAP[this.value].sym;
   });
 
-  // ---- presets ----
+  // ---- note suggestions: your frequent notes first, then presets ----
   var presets=["机票","打折","优惠券","会员价","二手","忍住没买","比价","返现","团购","海淘"];
   var chipsEl=$("#chips");
-  presets.forEach(function(p){
-    var b=document.createElement("button");b.type="button";b.className="chip";b.textContent=p;
-    b.addEventListener("click",function(){
-      $("#note").value=p;
-      chipsEl.querySelectorAll(".chip").forEach(function(c){c.classList.remove("on")});
-      b.classList.add("on");$("#amt").focus();
+  function topNotes(limit){
+    var freq={},last={};
+    entries.forEach(function(e){
+      if(e.ex)return;                        // skip seeded examples
+      var n=(e.note||"").trim();
+      if(!n||n==="省钱")return;              // skip empty / generic
+      freq[n]=(freq[n]||0)+1;
+      if(!last[n]||e.ts>last[n])last[n]=e.ts;
     });
-    chipsEl.appendChild(b);
-  });
+    return Object.keys(freq).sort(function(a,b){
+      return (freq[b]-freq[a])||(last[b]-last[a]);   // by count, then recency
+    }).slice(0,limit);
+  }
+  function fillNote(text,btn){
+    $("#note").value=text;
+    chipsEl.querySelectorAll(".chip").forEach(function(c){c.classList.remove("on")});
+    if(btn)btn.classList.add("on");
+    $("#amt").focus();
+  }
+  function renderChips(){
+    var used=topNotes(8),seen={},list=used.slice();
+    used.forEach(function(n){seen[n]=1});
+    for(var i=0;i<presets.length&&list.length<10;i++){   // pad with presets
+      if(!seen[presets[i]]){list.push(presets[i]);seen[presets[i]]=1}
+    }
+    chipsEl.innerHTML="";
+    list.forEach(function(p,idx){
+      var b=document.createElement("button");b.type="button";
+      b.className="chip"+(idx<used.length?" freq":"");   // mark your-history chips
+      b.textContent=p;
+      b.addEventListener("click",function(){fillNote(p,b)});
+      chipsEl.appendChild(b);
+    });
+  }
+  renderChips();
 
   // ---- render ----
   var lastBal=0;
@@ -461,6 +491,7 @@
     else $("#bal").textContent=fmtNum(t,CMAP[displayCur].dec);
     lastBal=t;
     updateProgress(t);
+    renderChips();
 
     $("#modeNote").textContent=(mode==="historical"?"按记录当时的汇率折算":"按当前汇率折算")+" · 显示为 "+displayCur;
 
