@@ -1,0 +1,643 @@
+<title>省钱存折</title>
+<meta name="description" content="记录自己省了多少钱的省钱存折，支持多币种与当时汇率快照，打开就能看到攒下的省钱余额。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --paper:#f4efe4;
+    --card:#fbf8f1;
+    --ink:#20302c;
+    --ink-soft:#5c6b64;
+    --line:#e4ddcd;
+    --vault:#123f38;
+    --vault-2:#0d322d;
+    --gold:#c99b3f;
+    --gold-soft:#e7c874;
+    --mint:#2f9e78;
+    --mint-soft:#e2f2ea;
+    --danger:#c75c4c;
+    --shadow:0 1px 2px rgba(28,40,36,.05), 0 8px 30px -12px rgba(28,40,36,.22);
+    --shadow-vault:0 18px 48px -20px rgba(9,32,28,.7);
+    --r:18px;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Segoe UI",sans-serif;
+    --disp:"Bricolage Grotesque",var(--sans);
+    --mono:"Space Mono","PingFang SC",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#0f1613; --card:#17211d; --ink:#eef2ee; --ink-soft:#9db0a7; --line:#26332d;
+      --vault:#0f3a33; --vault-2:#0a2925; --gold:#dcb35a; --gold-soft:#f0d38a;
+      --mint:#43b98d; --mint-soft:#123028; --danger:#e0796a;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 34px -14px rgba(0,0,0,.6);
+      --shadow-vault:0 20px 54px -22px rgba(0,0,0,.85);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0f1613; --card:#17211d; --ink:#eef2ee; --ink-soft:#9db0a7; --line:#26332d;
+    --vault:#0f3a33; --vault-2:#0a2925; --gold:#dcb35a; --gold-soft:#f0d38a;
+    --mint:#43b98d; --mint-soft:#123028; --danger:#e0796a;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 34px -14px rgba(0,0,0,.6);
+    --shadow-vault:0 20px 54px -22px rgba(0,0,0,.85);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:radial-gradient(1200px 500px at 50% -8%, color-mix(in oklab, var(--gold) 8%, transparent), transparent 60%),var(--paper);
+    color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:20px 18px 64px;}
+
+  /* ---- Passbook cover / balance ---- */
+  .book{position:relative;border-radius:22px;padding:26px 24px 24px;
+    background:radial-gradient(140% 120% at 82% 8%, color-mix(in oklab,var(--vault) 62%, #1c5b50) 0%, transparent 46%),linear-gradient(160deg,var(--vault) 0%,var(--vault-2) 100%);
+    color:#f3ede0;box-shadow:var(--shadow-vault);overflow:hidden;isolation:isolate;}
+  .book::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;
+    background-image:repeating-radial-gradient(circle at 88% 12%, rgba(201,155,63,.16) 0 1px, transparent 1px 13px);
+    -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);mask-image:linear-gradient(180deg,#000,transparent 70%);}
+  .book-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .brand{display:flex;flex-direction:column;gap:2px}
+  .brand .name{font-family:var(--disp);font-weight:800;font-size:20px;letter-spacing:.5px;color:var(--gold-soft);display:flex;align-items:center;gap:8px;}
+  .brand .seal{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:color-mix(in oklab,var(--gold-soft) 70%, #fff);opacity:.72;font-family:var(--mono);}
+  .icons{display:flex;gap:8px;flex:none}
+  .icon-btn{border:1px solid rgba(231,200,116,.32);background:rgba(255,255,255,.04);color:var(--gold-soft);
+    border-radius:999px;width:36px;height:36px;font-size:15px;cursor:pointer;display:grid;place-items:center;transition:.2s;}
+  .icon-btn:hover{background:rgba(231,200,116,.12)}
+
+  .bal-label-row{margin-top:22px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .bal-label{font-size:12.5px;letter-spacing:4px;color:rgba(243,237,224,.62);font-family:var(--mono)}
+  .disp-cur{appearance:none;-webkit-appearance:none;border:1px solid rgba(231,200,116,.3);background:rgba(255,255,255,.05);
+    color:var(--gold-soft);font-family:var(--mono);font-size:12px;letter-spacing:1px;border-radius:999px;
+    padding:5px 26px 5px 12px;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%23e7c874' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center;}
+  .disp-cur option{color:#111}
+  .bal-row{display:flex;align-items:baseline;gap:8px;margin-top:4px;flex-wrap:wrap}
+  .bal-cur{font-family:var(--disp);font-weight:700;font-size:28px;color:var(--gold-soft);line-height:1}
+  .bal{font-family:var(--disp);font-weight:800;font-size:clamp(44px,14vw,72px);line-height:.95;letter-spacing:-1.5px;color:#fdf8ec;font-variant-numeric:tabular-nums;}
+  .mode-note{margin-top:6px;font-size:11px;font-family:var(--mono);color:rgba(243,237,224,.5);letter-spacing:.5px}
+  .affirm{margin-top:14px;padding-top:15px;border-top:1px dashed rgba(231,200,116,.28);display:flex;align-items:center;gap:9px;min-height:24px;font-size:14px;color:rgba(243,237,224,.9);}
+  .affirm .spark{color:var(--gold-soft)}
+  .book-stats{display:flex;gap:22px;margin-top:16px}
+  .book-stats .s{display:flex;flex-direction:column;gap:1px}
+  .book-stats .s b{font-family:var(--mono);font-weight:700;font-size:16px;color:#fdf8ec;font-variant-numeric:tabular-nums}
+  .book-stats .s span{font-size:11px;letter-spacing:1.5px;color:rgba(243,237,224,.55)}
+
+  /* ---- Deposit ---- */
+  .deposit{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px 16px;box-shadow:var(--shadow);}
+  .deposit h2{margin:0 0 12px;font-size:13px;letter-spacing:.5px;color:var(--ink-soft);font-weight:600}
+  .amount-field{position:relative;display:flex;align-items:center;border:1.5px solid var(--line);border-radius:14px;
+    background:color-mix(in oklab,var(--card) 60%, var(--paper));padding:0 8px 0 14px;transition:border-color .18s, box-shadow .18s;}
+  .amount-field:focus-within{border-color:var(--mint);box-shadow:0 0 0 4px var(--mint-soft)}
+  .amount-field .yen{font-family:var(--disp);font-weight:700;font-size:22px;color:var(--ink-soft);padding-right:6px;min-width:24px;text-align:center}
+  .amount-field input{border:0;background:transparent;outline:none;flex:1;min-width:0;font-family:var(--disp);font-weight:800;font-size:32px;color:var(--ink);padding:12px 0;letter-spacing:-.5px;}
+  .amount-field input::placeholder{color:color-mix(in oklab,var(--ink-soft) 55%, transparent);font-weight:700}
+  .cur-sel{appearance:none;-webkit-appearance:none;border:1px solid var(--line);border-radius:10px;background:var(--card);
+    color:var(--ink);font-family:var(--mono);font-weight:700;font-size:13px;padding:8px 24px 8px 10px;cursor:pointer;flex:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%235c6b64' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center;}
+  .note-field{margin-top:10px}
+  .note-field input{width:100%;border:1.5px solid var(--line);border-radius:12px;background:color-mix(in oklab,var(--card) 60%, var(--paper));padding:11px 13px;font-size:15px;color:var(--ink);font-family:var(--sans);outline:none;transition:border-color .18s, box-shadow .18s;}
+  .note-field input:focus{border-color:var(--mint);box-shadow:0 0 0 4px var(--mint-soft)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .chip{border:1px solid var(--line);background:transparent;color:var(--ink-soft);border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:.16s;}
+  .chip:hover{border-color:var(--mint);color:var(--mint)}
+  .chip.on{background:var(--mint);border-color:var(--mint);color:#fff}
+  .save-btn{margin-top:14px;width:100%;border:0;cursor:pointer;background:linear-gradient(180deg,var(--mint), color-mix(in oklab,var(--mint) 82%, #000));color:#fff;border-radius:14px;padding:15px;font-size:16.5px;font-weight:700;font-family:var(--sans);letter-spacing:1px;box-shadow:0 10px 22px -10px color-mix(in oklab,var(--mint) 70%, transparent);transition:transform .08s, filter .18s;position:relative;overflow:hidden;}
+  .save-btn:hover{filter:brightness(1.05)}
+  .save-btn:active{transform:translateY(1px) scale(.995)}
+
+  /* ---- Ledger ---- */
+  .ledger{margin-top:24px}
+  .ledger-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px 6px}
+  .ledger-head h2{margin:0;font-size:14px;color:var(--ink);font-weight:700}
+  .ledger-head .hint{font-size:12px;color:var(--ink-soft)}
+  .rows{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+  .row{display:flex;align-items:center;gap:12px;padding:13px 15px;border-bottom:1px solid var(--line);transition:background .15s;}
+  .row:last-child{border-bottom:0}
+  .row:hover{background:color-mix(in oklab,var(--card) 70%, var(--paper))}
+  .row .ic{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:17px;background:var(--mint-soft);color:var(--mint)}
+  .row .mid{flex:1;min-width:0}
+  .row .mid .n{font-size:15px;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .mid .d{font-size:12px;color:var(--ink-soft);font-family:var(--mono);letter-spacing:.3px}
+  .amt-wrap{flex:none;text-align:right}
+  .amt-main{font-family:var(--mono);font-weight:700;font-size:16px;color:var(--mint);font-variant-numeric:tabular-nums}
+  .amt-sub{font-family:var(--mono);font-size:11px;color:var(--ink-soft);font-variant-numeric:tabular-nums;margin-top:1px}
+  .row.example{opacity:.72}
+  .tag-ex{font-size:10px;font-family:var(--mono);letter-spacing:1px;color:var(--ink-soft);border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin-left:8px;vertical-align:middle}
+  .del{border:0;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:16px;opacity:0;transition:.15s;padding:4px;border-radius:8px;flex:none;line-height:1}
+  .row:hover .del,.row:focus-within .del{opacity:.55}
+  .del:hover{opacity:1;color:var(--danger);background:color-mix(in oklab,var(--danger) 12%, transparent)}
+  .empty{padding:34px 20px;text-align:center;color:var(--ink-soft)}
+  .empty .big{font-size:15px;color:var(--ink);font-weight:600;margin-bottom:4px}
+  .footer-actions{display:flex;justify-content:center;gap:16px;margin-top:18px;flex-wrap:wrap}
+  .ghost{background:transparent;border:0;color:var(--ink-soft);font-size:12.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-family:var(--sans)}
+  .ghost:hover{color:var(--ink)}
+  .tip{text-align:center;margin-top:26px;font-size:12px;color:var(--ink-soft);line-height:1.7}
+
+  /* ---- Toast + coins ---- */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(24px);background:var(--vault);color:#f3ede0;border:1px solid rgba(231,200,116,.3);padding:13px 20px;border-radius:14px;font-size:15px;font-weight:600;box-shadow:var(--shadow-vault);opacity:0;pointer-events:none;transition:.32s cubic-bezier(.2,.9,.3,1);z-index:80;max-width:88vw;text-align:center;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .em{color:var(--gold-soft)}
+  #coins{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+  .coin{position:fixed;font-size:20px;will-change:transform,opacity}
+
+  /* ---- Modal ---- */
+  .overlay{position:fixed;inset:0;background:rgba(12,20,17,.55);backdrop-filter:blur(3px);z-index:90;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .2s}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .sheet{width:100%;max-width:560px;max-height:90vh;overflow-y:auto;background:var(--paper);border-radius:22px 22px 0 0;box-shadow:0 -18px 48px -20px rgba(9,32,28,.6);transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.9,.3,1);padding:8px 20px 32px}
+  .overlay.show .sheet{transform:translateY(0)}
+  .sheet-grip{width:40px;height:4px;border-radius:99px;background:var(--line);margin:8px auto 4px}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 0 4px}
+  .sheet-head h3{margin:0;font-size:17px;font-family:var(--disp);font-weight:800;color:var(--ink)}
+  .close-x{border:0;background:var(--card);border:1px solid var(--line);color:var(--ink-soft);width:32px;height:32px;border-radius:99px;cursor:pointer;font-size:16px}
+  .sec{margin-top:18px}
+  .sec > .lab{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);font-family:var(--mono);margin-bottom:9px}
+  .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+  .seg button{flex:1;border:0;background:transparent;color:var(--ink-soft);font-family:var(--sans);font-size:13.5px;padding:9px;border-radius:9px;cursor:pointer;transition:.15s;font-weight:600}
+  .seg button.on{background:var(--mint);color:#fff}
+  .seg-hint{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
+  .rate-list{display:flex;flex-direction:column;gap:8px}
+  .rate-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+  .rate-row .rc{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--ink);width:88px;flex:none}
+  .rate-row .rc small{color:var(--ink-soft);font-weight:400;display:block;font-size:11px}
+  .rate-row .eq{color:var(--ink-soft);font-size:13px;font-family:var(--mono)}
+  .rate-row input{flex:1;min-width:0;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:14px;padding:8px 10px;outline:none;text-align:right}
+  .rate-row input:focus{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+  .rate-row input:disabled{opacity:.55}
+  .data-btns{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{flex:1;min-width:130px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-family:var(--sans);font-weight:600;font-size:14px;padding:12px;border-radius:12px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+  .btn:hover{border-color:var(--mint);color:var(--mint)}
+  .btn.primary{background:var(--mint);border-color:var(--mint);color:#fff}
+  .btn.primary:hover{filter:brightness(1.05);color:#fff}
+  .btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+  .io-area{width:100%;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-family:var(--mono);font-size:12px;padding:11px;min-height:96px;resize:vertical;outline:none;white-space:pre;overflow:auto}
+  .io-area:focus{border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+  .io-hint{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
+  .hidden{display:none}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}.toast{transition:opacity .2s !important}.overlay{transition:opacity .15s!important}.sheet{transition:none!important}}
+  @media (max-width:420px){.wrap{padding:14px 12px 56px}.book-stats{gap:16px}}
+</style>
+
+<div class="wrap">
+  <section class="book" aria-label="省钱余额">
+    <div class="book-top">
+      <div class="brand">
+        <div class="name">🪙 省钱存折</div>
+        <div class="seal">SAVINGS · PASSBOOK</div>
+      </div>
+      <div class="icons">
+        <button class="icon-btn" id="themeBtn" title="切换深浅色" aria-label="切换深浅色">◐</button>
+        <button class="icon-btn" id="gearBtn" title="设置 · 汇率 · 数据" aria-label="设置">⚙</button>
+      </div>
+    </div>
+
+    <div class="bal-label-row">
+      <span class="bal-label">当前存款余额</span>
+      <select class="disp-cur" id="dispCur" aria-label="显示币种"></select>
+    </div>
+    <div class="bal-row">
+      <span class="bal-cur" id="balCur">¥</span>
+      <span class="bal" id="bal">0</span>
+    </div>
+    <div class="mode-note" id="modeNote"></div>
+
+    <div class="affirm" id="affirm"><span class="spark">✦</span><span id="affirmText">正在为你打开存折…</span></div>
+
+    <div class="book-stats">
+      <div class="s"><b id="stCount">0</b><span>笔记录</span></div>
+      <div class="s"><b id="stMonth">¥0</b><span>本月省下</span></div>
+      <div class="s"><b id="stBest">¥0</b><span>单笔最高</span></div>
+    </div>
+  </section>
+
+  <form class="deposit" id="form" autocomplete="off">
+    <h2>刚刚又省了一笔？存进来 👇</h2>
+    <div class="amount-field">
+      <span class="yen" id="amtSym">¥</span>
+      <input id="amt" inputmode="decimal" type="text" placeholder="250" aria-label="省下的金额">
+      <select class="cur-sel" id="entryCur" aria-label="币种"></select>
+    </div>
+    <div class="note-field">
+      <input id="note" type="text" maxlength="40" placeholder="省在哪儿了？（比如：机票打折）" aria-label="备注">
+    </div>
+    <div class="chips" id="chips"></div>
+    <button class="save-btn" id="saveBtn" type="submit">存进省钱存款</button>
+  </form>
+
+  <section class="ledger">
+    <div class="ledger-head">
+      <h2>省钱流水</h2>
+      <span class="hint" id="ledgerHint"></span>
+    </div>
+    <div class="rows" id="rows"></div>
+    <div class="footer-actions" id="footerActions"></div>
+  </section>
+
+  <p class="tip">数据只存在这台设备的浏览器里，不上传任何地方。<br>想换设备或备份？用下方 ⚙ 里的「导出 / 导入」。亏钱的时候翻出来看看你有多富 💚</p>
+</div>
+
+<!-- Settings sheet -->
+<div class="overlay" id="overlay">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="设置">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <h3>设置</h3>
+      <button class="close-x" id="closeSheet" aria-label="关闭">✕</button>
+    </div>
+
+    <div class="sec">
+      <div class="lab">换算方式</div>
+      <div class="seg" id="modeSeg">
+        <button data-mode="current" type="button">按当前汇率</button>
+        <button data-mode="historical" type="button">按当时汇率</button>
+      </div>
+      <div class="seg-hint" id="modeHint"></div>
+    </div>
+
+    <div class="sec">
+      <div class="lab">汇率（手动维护的近似值，随时可改）</div>
+      <div class="rate-list" id="rateList"></div>
+    </div>
+
+    <div class="sec">
+      <div class="lab">数据 · 导出与导入</div>
+      <div class="data-btns">
+        <button class="btn" id="btnExport" type="button">⬆ 导出</button>
+        <button class="btn" id="btnImportOpen" type="button">⬇ 导入</button>
+      </div>
+
+      <div id="exportBox" class="hidden">
+        <textarea class="io-area" id="exportText" readonly aria-label="导出数据"></textarea>
+        <div class="data-btns" style="margin-top:10px">
+          <button class="btn primary" id="btnCopy" type="button">复制到剪贴板</button>
+          <button class="btn" id="btnDownload" type="button">下载 .json 文件</button>
+        </div>
+        <div class="io-hint">复制这段文字保存到备忘录/网盘，就是一份完整备份。在别的设备打开存折，用「导入」粘回去即可。</div>
+      </div>
+
+      <div id="importBox" class="hidden">
+        <textarea class="io-area" id="importText" placeholder="把之前导出的内容粘贴到这里…" aria-label="导入数据"></textarea>
+        <div class="data-btns" style="margin-top:10px">
+          <button class="btn" id="btnPickFile" type="button">选择 .json 文件</button>
+          <button class="btn primary" id="btnImportGo" type="button">导入并覆盖</button>
+        </div>
+        <input type="file" id="importFile" accept="application/json,.json,text/plain" class="hidden">
+        <div class="io-hint">导入会<strong>覆盖</strong>当前这台设备上的全部记录，请确认后再操作。</div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="data-btns">
+        <button class="btn danger" id="btnReset" type="button">清空全部记录</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="coins" aria-hidden="true"></div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY="savings.entries.v1", SEED="savings.seeded.v1", THEME="savings.theme.v1",
+      RKEY="savings.rates.v1", DKEY="savings.display.v1", MKEY="savings.mode.v1";
+  var $=function(s){return document.querySelector(s)};
+  var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  // ---- currency table (rate = how many CNY 1 unit is worth) ----
+  var CURRENCIES=[
+    {code:"CNY",sym:"¥",name:"人民币",dec:0,rate:1},
+    {code:"USD",sym:"$",name:"美元",dec:2,rate:7.10},
+    {code:"HKD",sym:"HK$",name:"港币",dec:2,rate:0.91},
+    {code:"JPY",sym:"JP¥",name:"日元",dec:0,rate:0.048}
+  ];
+  var CMAP={};CURRENCIES.forEach(function(c){CMAP[c.code]=c});
+
+  // ---- storage ----
+  function loadJSON(k,f){try{var v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}}
+  function saveJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+  var entries=loadJSON(KEY,[]);
+  // migrate: ensure each entry has a currency
+  entries.forEach(function(e){if(!e.cur)e.cur="CNY"});
+
+  var currentRates=loadJSON(RKEY,null);
+  if(!currentRates){currentRates={};CURRENCIES.forEach(function(c){currentRates[c.code]=c.rate})}
+  else{CURRENCIES.forEach(function(c){if(currentRates[c.code]==null)currentRates[c.code]=c.rate})}
+
+  var displayCur=loadJSON(DKEY,"CNY"); if(!CMAP[displayCur])displayCur="CNY";
+  var mode=loadJSON(MKEY,"current"); if(mode!=="historical")mode="current";
+
+  // first-time samples
+  var seeded=false;try{seeded=localStorage.getItem(SEED)==="1"}catch(e){}
+  if(!entries.length && !seeded){
+    var now=Date.now();
+    entries=[
+      {id:"ex1",amount:250,cur:"CNY",note:"机票提前订，省下差价",ts:now-86400000*2,ex:true,rates:snap()},
+      {id:"ex2",amount:12,cur:"USD",note:"海淘用了优惠码",ts:now-86400000*5,ex:true,rates:snap()},
+      {id:"ex3",amount:120,cur:"CNY",note:"忍住没买那件外套",ts:now-86400000*9,ex:true,rates:snap()}
+    ];
+  }
+  function snap(){var o={};for(var k in currentRates)o[k]=currentRates[k];return o}
+
+  // ---- rate math ----
+  function rateOf(map,code){var v=map&&map[code];return (v==null||!isFinite(v))?(CMAP[code]?CMAP[code].rate:1):v}
+  function convert(amount,from,to,map){return amount*rateOf(map,from)/rateOf(map,to)}
+  function entryValue(e,to){
+    var map=(mode==="historical"&&e.rates)?e.rates:currentRates;
+    return convert(+e.amount||0, e.cur||"CNY", to, map);
+  }
+  function total(to){return entries.reduce(function(a,e){return a+entryValue(e,to)},0)}
+
+  // ---- formatting ----
+  function fmtNum(n,dec){
+    if(dec===0||Math.abs(n-Math.round(n))<0.005)return Math.round(n).toLocaleString("en-US");
+    return n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  function money(v,code){var c=CMAP[code]||CMAP.CNY;return c.sym+fmtNum(v,c.dec)}
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+  function fmtDate(ts){
+    var d=new Date(ts);
+    var days=Math.floor((new Date().setHours(0,0,0,0)-new Date(ts).setHours(0,0,0,0))/86400000);
+    if(days===0)return "今天";if(days===1)return "昨天";
+    return (d.getMonth()+1)+"月"+d.getDate()+"日";
+  }
+  function iconFor(note){
+    var map={"机票":"✈️","打折":"🏷️","优惠券":"🎟️","优惠码":"🎟️","会员":"⭐","二手":"♻️","忍住":"🛑","比价":"⚖️","返现":"💸","团购":"👥","自己做":"🍳","咖啡":"☕","海淘":"📦"};
+    for(var k in map){if(note&&note.indexOf(k)>=0)return map[k]}
+    return "🪙";
+  }
+
+  // ---- theme ----
+  (function(){
+    var t=null;try{t=localStorage.getItem(THEME)}catch(e){}
+    if(t)document.documentElement.setAttribute("data-theme",t);
+    $("#themeBtn").addEventListener("click",function(){
+      var cur=document.documentElement.getAttribute("data-theme");
+      var dark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+      var next=dark?"light":"dark";
+      document.documentElement.setAttribute("data-theme",next);
+      try{localStorage.setItem(THEME,next)}catch(e){}
+    });
+  })();
+
+  // ---- populate currency selects ----
+  function fillCurSelect(sel,selected){
+    sel.innerHTML="";
+    CURRENCIES.forEach(function(c){
+      var o=document.createElement("option");
+      o.value=c.code;o.textContent=c.code+" "+c.sym+" "+c.name;
+      if(c.code===selected)o.selected=true;
+      sel.appendChild(o);
+    });
+  }
+  fillCurSelect($("#dispCur"),displayCur);
+  fillCurSelect($("#entryCur"),displayCur);
+  $("#amtSym").textContent=CMAP[displayCur].sym;
+
+  $("#dispCur").addEventListener("change",function(){
+    displayCur=this.value;saveJSON(DKEY,displayCur);
+    render();setAffirm();
+  });
+  $("#entryCur").addEventListener("change",function(){
+    $("#amtSym").textContent=CMAP[this.value].sym;
+  });
+
+  // ---- presets ----
+  var presets=["机票","打折","优惠券","会员价","二手","忍住没买","比价","返现","团购","海淘"];
+  var chipsEl=$("#chips");
+  presets.forEach(function(p){
+    var b=document.createElement("button");b.type="button";b.className="chip";b.textContent=p;
+    b.addEventListener("click",function(){
+      $("#note").value=p;
+      chipsEl.querySelectorAll(".chip").forEach(function(c){c.classList.remove("on")});
+      b.classList.add("on");$("#amt").focus();
+    });
+    chipsEl.appendChild(b);
+  });
+
+  // ---- render ----
+  var lastBal=0;
+  function render(animate){
+    var t=total(displayCur);
+    $("#balCur").textContent=CMAP[displayCur].sym;
+    if(animate)countUp($("#bal"),lastBal,t,CMAP[displayCur].dec);
+    else $("#bal").textContent=fmtNum(t,CMAP[displayCur].dec);
+    lastBal=t;
+
+    $("#modeNote").textContent=(mode==="historical"?"按记录当时的汇率折算":"按当前汇率折算")+" · 显示为 "+displayCur;
+
+    $("#stCount").textContent=entries.length;
+    var mNow=new Date();
+    var monthSum=entries.reduce(function(a,e){var d=new Date(e.ts);return (d.getMonth()===mNow.getMonth()&&d.getFullYear()===mNow.getFullYear())?a+entryValue(e,displayCur):a},0);
+    $("#stMonth").textContent=money(monthSum,displayCur);
+    var best=entries.reduce(function(a,e){return Math.max(a,entryValue(e,displayCur))},0);
+    $("#stBest").textContent=money(best,displayCur);
+
+    var rows=$("#rows");rows.innerHTML="";
+    if(!entries.length){
+      rows.innerHTML='<div class="empty"><div class="big">还没有记录～</div>省下的第一笔钱，就从上面存进来吧。</div>';
+    }else{
+      entries.slice().sort(function(a,b){return b.ts-a.ts}).forEach(function(e){
+        var row=document.createElement("div");
+        row.className="row"+(e.ex?" example":"");
+        var showSub=(e.cur||"CNY")!==displayCur;
+        row.innerHTML=
+          '<div class="ic">'+iconFor(e.note)+'</div>'+
+          '<div class="mid"><div class="n">'+escapeHtml(e.note||"省钱")+(e.ex?'<span class="tag-ex">示例</span>':'')+'</div>'+
+            '<div class="d">'+fmtDate(e.ts)+'</div></div>'+
+          '<div class="amt-wrap"><div class="amt-main">+'+money(+e.amount||0,e.cur||"CNY")+'</div>'+
+            (showSub?'<div class="amt-sub">≈ '+money(entryValue(e,displayCur),displayCur)+'</div>':'')+'</div>'+
+          '<button class="del" title="删除这笔" aria-label="删除">✕</button>';
+        row.querySelector(".del").addEventListener("click",function(){removeEntry(e.id)});
+        rows.appendChild(row);
+      });
+    }
+    $("#ledgerHint").textContent=entries.length?("共 "+entries.length+" 笔"):"";
+
+    var fa=$("#footerActions");fa.innerHTML="";
+    if(entries.some(function(e){return e.ex})){
+      var g=document.createElement("button");g.className="ghost";g.textContent="清空示例，开始记我自己的";
+      g.addEventListener("click",function(){
+        entries=entries.filter(function(e){return !e.ex});
+        try{localStorage.setItem(SEED,"1")}catch(e){}
+        saveJSON(KEY,entries);render();toast("存折已清空，等你第一笔 ✨");
+      });
+      fa.appendChild(g);
+    }
+  }
+
+  function removeEntry(id){
+    entries=entries.filter(function(e){return e.id!==id});
+    if(!entries.length){try{localStorage.setItem(SEED,"1")}catch(e){}}
+    saveJSON(KEY,entries);render();
+  }
+
+  function countUp(el,from,to,dec){
+    if(reduce||from===to){el.textContent=fmtNum(to,dec);return}
+    var start=performance.now(),dur=Math.min(1100,420+Math.abs(to-from)*1.2);
+    function step(t){var p=Math.min(1,(t-start)/dur),e=1-Math.pow(1-p,3);
+      el.textContent=fmtNum(from+(to-from)*e,dec);
+      if(p<1)requestAnimationFrame(step);else el.textContent=fmtNum(to,dec);}
+    requestAnimationFrame(step);
+  }
+
+  // ---- affirmations ----
+  var openLines=["你已经攒下这么多，很了不起 👏","这些都是你精打细算换来的，稳稳的。","手里有这笔'省钱存款'，心里就有底。","每一笔都是你没乱花的证明，真棒。","看，你比自己想象的更会过日子。"];
+  var depositLines=["又攒下一笔！你真会过日子 💪","漂亮！这笔省得明明白白 ✨","存款又厚了一点，开心！","省到就是赚到，记你一笔 🎉","干得好！未来的你会谢谢现在的你。","这波操作很聪明，钱包给你点赞 👍","越攒越有，继续保持～","又一次没被套路，牛！"];
+  function pick(a){return a[Math.floor(Math.random()*a.length)]}
+  function setAffirm(){$("#affirmText").textContent=total(displayCur)>0?pick(openLines):"记下第一笔，就有第一份底气。"}
+
+  // ---- toast + coins ----
+  var toastTimer;
+  function toast(msg){var el=$("#toast");el.innerHTML=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove("show")},2600)}
+  function burstCoins(n){
+    if(reduce)return;
+    var layer=$("#coins"),btn=$("#saveBtn").getBoundingClientRect();
+    var ox=btn.left+btn.width/2,oy=btn.top+btn.height/2,glyphs=["🪙","💰","✨","💵"];
+    for(var i=0;i<n;i++){(function(){
+      var c=document.createElement("div");c.className="coin";c.textContent=glyphs[Math.floor(Math.random()*glyphs.length)];
+      c.style.left=ox+"px";c.style.top=oy+"px";layer.appendChild(c);
+      var ang=(-90+(Math.random()*120-60))*Math.PI/180,vel=6+Math.random()*7;
+      var vx=Math.cos(ang)*vel,vy=Math.sin(ang)*vel-4,x=0,y=0,rot=0,vr=(Math.random()-.5)*24,life=0,start=performance.now();
+      function step(t){life=(t-start)/1000;vy+=.35;x+=vx;y+=vy;rot+=vr;
+        c.style.transform="translate("+x+"px,"+y+"px) rotate("+rot+"deg)";c.style.opacity=String(Math.max(0,1-life/1.3));
+        if(life<1.3)requestAnimationFrame(step);else c.remove();}
+      requestAnimationFrame(step);
+    })()}
+  }
+  var marks=[100,300,500,1000,2000,3000,5000,8000,10000,20000,30000,50000,100000];
+  function crossed(from,to){for(var i=0;i<marks.length;i++){if(from<marks[i]&&to>=marks[i])return marks[i]}return 0}
+
+  // ---- submit ----
+  $("#form").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var amt=parseFloat($("#amt").value.replace(/[^\d.]/g,""));
+    if(!amt||amt<=0){$("#amt").focus();toast("填一个省下的金额吧 🙂");return}
+    var cur=$("#entryCur").value||"CNY";
+    var note=$("#note").value.trim()||"省钱";
+    var before=total(displayCur);
+    entries.push({id:"e"+Date.now()+Math.random().toString(36).slice(2,6),amount:amt,cur:cur,note:note,ts:Date.now(),rates:snap()});
+    try{localStorage.setItem(SEED,"1")}catch(e){}
+    saveJSON(KEY,entries);
+    var after=total(displayCur);
+    render(true);burstCoins(14);
+    var mark=crossed(before,after);
+    if(mark){toast('🎉 突破 <span class="em">'+money(mark,displayCur)+'</span>！省钱存款里程碑达成');if(!reduce)burstCoins(20);}
+    else toast(pick(depositLines).replace(/(💪|✨|🎉|👍)/g,'<span class="em">$1</span>'));
+    setAffirm();
+    $("#amt").value="";$("#note").value="";
+    chipsEl.querySelectorAll(".chip").forEach(function(c){c.classList.remove("on")});
+    $("#amt").focus();
+  });
+  $("#amt").addEventListener("input",function(){
+    var v=this.value.replace(/[^\d.]/g,""),p=v.split(".");if(p.length>2)v=p[0]+"."+p.slice(1).join("");this.value=v;
+  });
+
+  // ================= Settings sheet =================
+  var overlay=$("#overlay");
+  function openSheet(){buildModeSeg();buildRates();overlay.classList.add("show")}
+  function closeSheet(){overlay.classList.remove("show")}
+  $("#gearBtn").addEventListener("click",openSheet);
+  $("#closeSheet").addEventListener("click",closeSheet);
+  overlay.addEventListener("click",function(e){if(e.target===overlay)closeSheet()});
+
+  function buildModeSeg(){
+    var seg=$("#modeSeg");
+    seg.querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-mode")===mode)});
+    $("#modeHint").textContent=mode==="historical"
+      ? "每笔按你记录当天的汇率折算——回头看就是「当时省了多少」。"
+      : "所有记录都按现在的汇率折算——看的是「现在值多少」。";
+  }
+  $("#modeSeg").addEventListener("click",function(e){
+    var b=e.target.closest("button");if(!b)return;
+    mode=b.getAttribute("data-mode");saveJSON(MKEY,mode);
+    buildModeSeg();render();setAffirm();
+  });
+
+  function buildRates(){
+    var list=$("#rateList");list.innerHTML="";
+    CURRENCIES.forEach(function(c){
+      var row=document.createElement("div");row.className="rate-row";
+      var isBase=c.code==="CNY";
+      row.innerHTML='<div class="rc">'+c.code+' '+c.sym+'<small>'+c.name+'</small></div>'+
+        '<span class="eq">1 = ¥</span>'+
+        '<input type="text" inputmode="decimal" value="'+(isBase?"1":currentRates[c.code])+'"'+(isBase?" disabled":"")+' aria-label="'+c.code+'汇率">';
+      if(!isBase){
+        var inp=row.querySelector("input");
+        inp.addEventListener("change",function(){
+          var v=parseFloat(this.value.replace(/[^\d.]/g,""));
+          if(v&&v>0){currentRates[c.code]=v;saveJSON(RKEY,currentRates);this.value=v;render();}
+          else this.value=currentRates[c.code];
+        });
+      }
+      list.appendChild(row);
+    });
+  }
+
+  // ---- export / import ----
+  function snapshotData(){
+    return {app:"savings-passbook",version:2,exportedAt:new Date().toISOString(),
+      displayCur:displayCur,mode:mode,rates:currentRates,entries:entries};
+  }
+  $("#btnExport").addEventListener("click",function(){
+    $("#importBox").classList.add("hidden");
+    var box=$("#exportBox");box.classList.remove("hidden");
+    $("#exportText").value=JSON.stringify(snapshotData(),null,2);
+    $("#exportText").focus();$("#exportText").select();
+  });
+  $("#btnCopy").addEventListener("click",function(){
+    var ta=$("#exportText");ta.focus();ta.select();
+    var done=function(){toast("已复制备份 ✨")};
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand("copy");done()}catch(e){toast("请长按手动复制")}});
+    }else{try{document.execCommand("copy");done()}catch(e){toast("请长按手动复制")}}
+  });
+  $("#btnDownload").addEventListener("click",function(){
+    try{
+      var blob=new Blob([JSON.stringify(snapshotData(),null,2)],{type:"application/json"});
+      var url=URL.createObjectURL(blob),a=document.createElement("a");
+      a.href=url;a.download="省钱存折备份-"+new Date().toISOString().slice(0,10)+".json";
+      document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1500);
+      toast("已生成下载 📄");
+    }catch(e){toast("此环境不支持下载，请用「复制」备份")}
+  });
+  $("#btnImportOpen").addEventListener("click",function(){
+    $("#exportBox").classList.add("hidden");
+    $("#importBox").classList.remove("hidden");$("#importText").focus();
+  });
+  $("#btnPickFile").addEventListener("click",function(){$("#importFile").click()});
+  $("#importFile").addEventListener("change",function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var r=new FileReader();r.onload=function(){$("#importText").value=String(r.result||"")};r.readAsText(f);
+  });
+  $("#btnImportGo").addEventListener("click",function(){
+    var raw=$("#importText").value.trim();
+    if(!raw){toast("请先粘贴或选择备份内容");return}
+    var data;try{data=JSON.parse(raw)}catch(e){toast("内容不是有效的备份 JSON");return}
+    var list=Array.isArray(data)?data:data.entries;
+    if(!Array.isArray(list)){toast("没找到记录数据");return}
+    if(!confirm("导入会覆盖当前这台设备上的全部记录，确定吗？"))return;
+    entries=list.map(function(e){return {id:e.id||("e"+Date.now()+Math.random().toString(36).slice(2,6)),
+      amount:+e.amount||0,cur:e.cur||"CNY",note:e.note||"省钱",ts:e.ts||Date.now(),rates:e.rates||null,ex:!!e.ex}});
+    if(data.rates&&typeof data.rates==="object"){CURRENCIES.forEach(function(c){if(data.rates[c.code]!=null)currentRates[c.code]=+data.rates[c.code]});saveJSON(RKEY,currentRates)}
+    if(data.displayCur&&CMAP[data.displayCur]){displayCur=data.displayCur;saveJSON(DKEY,displayCur);$("#dispCur").value=displayCur;$("#amtSym").textContent=CMAP[displayCur].sym}
+    if(data.mode==="historical"||data.mode==="current"){mode=data.mode;saveJSON(MKEY,mode)}
+    saveJSON(KEY,entries);try{localStorage.setItem(SEED,"1")}catch(e){}
+    buildModeSeg();buildRates();render();setAffirm();
+    $("#importText").value="";closeSheet();
+    toast('已导入 <span class="em">'+entries.length+'</span> 笔记录 🎉');
+  });
+  $("#btnReset").addEventListener("click",function(){
+    if(!confirm("确定清空全部记录？此操作无法撤销。"))return;
+    entries=[];saveJSON(KEY,entries);try{localStorage.setItem(SEED,"1")}catch(e){}
+    render();setAffirm();closeSheet();toast("已清空，随时可以重新开始 🌱");
+  });
+
+  // ---- go ----
+  render();setAffirm();
+})();
+</script>
