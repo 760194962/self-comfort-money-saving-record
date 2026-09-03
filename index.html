@@ -76,8 +76,16 @@
   .bal-cur{font-family:var(--disp);font-weight:700;font-size:28px;color:var(--gold-soft);line-height:1}
   .bal{font-family:var(--disp);font-weight:800;font-size:clamp(44px,14vw,72px);line-height:.95;letter-spacing:-1.5px;color:#fdf8ec;font-variant-numeric:tabular-nums;}
   .mode-note{margin-top:6px;font-size:11px;font-family:var(--mono);color:rgba(243,237,224,.5);letter-spacing:.5px}
-  .affirm{margin-top:14px;padding-top:15px;border-top:1px dashed rgba(231,200,116,.28);display:flex;align-items:center;gap:9px;min-height:24px;font-size:14px;color:rgba(243,237,224,.9);}
-  .affirm .spark{color:var(--gold-soft)}
+  /* ---- Milestone progress (non-text positive feedback) ---- */
+  .progress{margin-top:14px;padding-top:15px;border-top:1px dashed rgba(231,200,116,.28)}
+  .progress-bar{position:relative;height:9px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}
+  .progress-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;
+    background:linear-gradient(90deg,var(--gold),var(--gold-soft));box-shadow:0 0 14px -3px var(--gold-soft);
+    transition:width .9s cubic-bezier(.2,.9,.3,1);}
+  .progress.done .progress-fill{background:linear-gradient(90deg,var(--mint),var(--gold-soft))}
+  .progress-meta{display:flex;justify-content:space-between;align-items:center;margin-top:9px;font-family:var(--mono);font-size:12px;color:rgba(243,237,224,.6)}
+  .progress-meta .pm-now{font-size:15px;line-height:1}
+  .progress-meta .pm-next{color:var(--gold-soft);letter-spacing:.5px;display:flex;align-items:center;gap:5px}
   .book-stats{display:flex;gap:22px;margin-top:16px}
   .book-stats .s{display:flex;flex-direction:column;gap:1px}
   .book-stats .s b{font-family:var(--mono);font-weight:700;font-size:16px;color:#fdf8ec;font-variant-numeric:tabular-nums}
@@ -142,6 +150,17 @@
   #coins{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
   .coin{position:fixed;font-size:20px;will-change:transform,opacity}
 
+  /* ---- Non-text feedback: floating gain, balance bump, milestone glow, error shake ---- */
+  .gain{position:fixed;z-index:75;pointer-events:none;font-family:var(--disp);font-weight:800;font-size:26px;
+    color:var(--gold);text-shadow:0 2px 12px rgba(201,155,63,.5);will-change:transform,opacity}
+  @keyframes balBump{0%{transform:scale(1)}30%{transform:scale(1.06)}100%{transform:scale(1)}}
+  .bal.bump{animation:balBump .5s ease}
+  @keyframes vaultGlow{0%,100%{box-shadow:var(--shadow-vault)}42%{box-shadow:0 0 0 2px var(--gold-soft),var(--shadow-vault),0 0 62px -6px var(--gold-soft)}}
+  .book.celebrate{animation:vaultGlow 1.15s ease}
+  @keyframes shakeX{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+  .amount-field.shake{animation:shakeX .5s}
+  .amount-field.invalid{border-color:var(--danger);box-shadow:0 0 0 4px color-mix(in oklab,var(--danger) 18%, transparent)}
+
   /* ---- Modal ---- */
   .overlay{position:fixed;inset:0;background:rgba(12,20,17,.55);backdrop-filter:blur(3px);z-index:90;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .2s}
   .overlay.show{opacity:1;pointer-events:auto}
@@ -203,7 +222,13 @@
     </div>
     <div class="mode-note" id="modeNote"></div>
 
-    <div class="affirm" id="affirm"><span class="spark">✦</span><span id="affirmText">正在为你打开存折…</span></div>
+    <div class="progress" id="progress" aria-hidden="true">
+      <div class="progress-bar"><span class="progress-fill" id="progressFill"></span></div>
+      <div class="progress-meta">
+        <span class="pm-now">🪙</span>
+        <span class="pm-next"><span aria-hidden="true">🎯</span><span id="progressNext"></span></span>
+      </div>
+    </div>
 
     <div class="book-stats">
       <div class="s"><b id="stCount">0</b><span>笔记录</span></div>
@@ -400,7 +425,7 @@
 
   $("#dispCur").addEventListener("change",function(){
     displayCur=this.value;saveJSON(DKEY,displayCur);
-    render();setAffirm();
+    render();
   });
   $("#entryCur").addEventListener("change",function(){
     $("#amtSym").textContent=CMAP[this.value].sym;
@@ -427,6 +452,7 @@
     if(animate)countUp($("#bal"),lastBal,t,CMAP[displayCur].dec);
     else $("#bal").textContent=fmtNum(t,CMAP[displayCur].dec);
     lastBal=t;
+    updateProgress(t);
 
     $("#modeNote").textContent=(mode==="historical"?"按记录当时的汇率折算":"按当前汇率折算")+" · 显示为 "+displayCur;
 
@@ -485,11 +511,18 @@
     requestAnimationFrame(step);
   }
 
-  // ---- affirmations ----
-  var openLines=["你已经攒下这么多，很了不起 👏","这些都是你精打细算换来的，稳稳的。","手里有这笔'省钱存款'，心里就有底。","每一笔都是你没乱花的证明，真棒。","看，你比自己想象的更会过日子。"];
-  var depositLines=["又攒下一笔！你真会过日子 💪","漂亮！这笔省得明明白白 ✨","存款又厚了一点，开心！","省到就是赚到，记你一笔 🎉","干得好！未来的你会谢谢现在的你。","这波操作很聪明，钱包给你点赞 👍","越攒越有，继续保持～","又一次没被套路，牛！"];
-  function pick(a){return a[Math.floor(Math.random()*a.length)]}
-  function setAffirm(){$("#affirmText").textContent=total(displayCur)>0?pick(openLines):"记下第一笔，就有第一份底气。"}
+  // ---- milestone progress (non-text positive feedback) ----
+  var marks=[100,300,500,1000,2000,3000,5000,8000,10000,20000,30000,50000,100000];
+  function prevMark(v){var p=0;for(var i=0;i<marks.length;i++){if(marks[i]<=v)p=marks[i];else break}return p}
+  function nextMark(v){for(var i=0;i<marks.length;i++){if(marks[i]>v)return marks[i]}return Math.ceil((v+1)/100000)*100000}
+  function crossed(from,to){for(var i=0;i<marks.length;i++){if(from<marks[i]&&to>=marks[i])return marks[i]}return 0}
+  function updateProgress(v){
+    var prev=prevMark(v),next=nextMark(v);
+    var pct=next>prev?Math.max(0,Math.min(1,(v-prev)/(next-prev))):0;
+    $("#progressFill").style.width=(pct*100).toFixed(2)+"%";
+    $("#progressNext").textContent=money(next,displayCur);
+    $("#progress").classList.toggle("done",v>0&&pct>=0.999);
+  }
 
   // ---- toast + coins ----
   var toastTimer;
@@ -509,14 +542,33 @@
       requestAnimationFrame(step);
     })()}
   }
-  var marks=[100,300,500,1000,2000,3000,5000,8000,10000,20000,30000,50000,100000];
-  function crossed(from,to){for(var i=0;i<marks.length;i++){if(from<marks[i]&&to>=marks[i])return marks[i]}return 0}
+  // floating gain number that rises from the deposit button (numbers are language-neutral)
+  function floatGain(txt){
+    if(reduce)return;
+    var r=$("#saveBtn").getBoundingClientRect();
+    var el=document.createElement("div");el.className="gain";el.textContent=txt;
+    el.style.left=(r.left+r.width/2)+"px";el.style.top=r.top+"px";el.style.transform="translate(-50%,0)";
+    document.body.appendChild(el);
+    var start=performance.now();
+    function step(t){var p=Math.min(1,(t-start)/900);
+      el.style.transform="translate(-50%,"+(-72*p)+"px)";el.style.opacity=String(1-p);
+      if(p<1)requestAnimationFrame(step);else el.remove();}
+    requestAnimationFrame(step);
+  }
+  function pulse(el,cls){if(reduce||!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
+  function bumpBal(){pulse($("#bal"),"bump")}
+  function celebrate(){pulse($(".book"),"celebrate")}
+  function flagInvalid(){
+    var f=$(".amount-field");if(!f)return;
+    pulse(f,"shake");
+    f.classList.add("invalid");setTimeout(function(){f.classList.remove("invalid")},650);
+  }
 
   // ---- submit ----
   $("#form").addEventListener("submit",function(ev){
     ev.preventDefault();
     var amt=parseFloat($("#amt").value.replace(/[^\d.]/g,""));
-    if(!amt||amt<=0){$("#amt").focus();toast("填一个省下的金额吧 🙂");return}
+    if(!amt||amt<=0){$("#amt").focus();flagInvalid();return}
     var cur=$("#entryCur").value||"CNY";
     var note=$("#note").value.trim()||"省钱";
     var before=total(displayCur);
@@ -524,11 +576,11 @@
     try{localStorage.setItem(SEED,"1")}catch(e){}
     saveJSON(KEY,entries);
     var after=total(displayCur);
-    render(true);burstCoins(14);
+    // non-text positive feedback: coins, balance count-up + bump, floating gain, progress bar advance
+    render(true);burstCoins(14);bumpBal();
+    floatGain("+"+money(after-before,displayCur));
     var mark=crossed(before,after);
-    if(mark){toast('🎉 突破 <span class="em">'+money(mark,displayCur)+'</span>！省钱存款里程碑达成');if(!reduce)burstCoins(20);}
-    else toast(pick(depositLines).replace(/(💪|✨|🎉|👍)/g,'<span class="em">$1</span>'));
-    setAffirm();
+    if(mark){celebrate();if(!reduce)burstCoins(22);toast('🏆 '+money(mark,displayCur));}
     $("#amt").value="";$("#note").value="";
     chipsEl.querySelectorAll(".chip").forEach(function(c){c.classList.remove("on")});
     $("#amt").focus();
@@ -555,7 +607,7 @@
   $("#modeSeg").addEventListener("click",function(e){
     var b=e.target.closest("button");if(!b)return;
     mode=b.getAttribute("data-mode");saveJSON(MKEY,mode);
-    buildModeSeg();render();setAffirm();
+    buildModeSeg();render();
   });
 
   function buildRates(){
@@ -627,17 +679,17 @@
     if(data.displayCur&&CMAP[data.displayCur]){displayCur=data.displayCur;saveJSON(DKEY,displayCur);$("#dispCur").value=displayCur;$("#amtSym").textContent=CMAP[displayCur].sym}
     if(data.mode==="historical"||data.mode==="current"){mode=data.mode;saveJSON(MKEY,mode)}
     saveJSON(KEY,entries);try{localStorage.setItem(SEED,"1")}catch(e){}
-    buildModeSeg();buildRates();render();setAffirm();
+    buildModeSeg();buildRates();render();
     $("#importText").value="";closeSheet();
     toast('已导入 <span class="em">'+entries.length+'</span> 笔记录 🎉');
   });
   $("#btnReset").addEventListener("click",function(){
     if(!confirm("确定清空全部记录？此操作无法撤销。"))return;
     entries=[];saveJSON(KEY,entries);try{localStorage.setItem(SEED,"1")}catch(e){}
-    render();setAffirm();closeSheet();toast("已清空，随时可以重新开始 🌱");
+    render();closeSheet();toast("已清空，随时可以重新开始 🌱");
   });
 
   // ---- go ----
-  render();setAffirm();
+  render();
 })();
 </script>
