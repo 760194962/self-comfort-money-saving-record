@@ -1,0 +1,16 @@
+{
+  "name": "節約貯金通帳",
+  "short_name": "貯金通帳",
+  "description": "自分がいくら節約できたかを記録する貯金通帳。開けばこれまで貯めた節約残高がひと目でわかります。",
+  "start_url": "./index.ja.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1613",
+  "theme_color": "#123f38",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
