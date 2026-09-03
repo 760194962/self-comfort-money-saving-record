@@ -17,7 +17,9 @@
 
 直接用浏览器打开 `index.html` 即可，无需任何依赖或构建。
 
-手机上建议**添加到主屏幕**，像个 App 一样随手就能记。
+手机上建议**添加到主屏幕**，会带上专属图标（金色 ¥ 币）并以全屏 App 形式打开，像个真 App 一样随手就能记。
+
+> 主屏幕图标依赖同目录下的 `favicon.svg` / `apple-touch-icon.png` / `icon-192.png` / `icon-512.png` / `manifest.webmanifest`，用 GitHub Pages 等静态托管打开即可生效。
 
 ### 汇率说明
 
@@ -32,7 +34,7 @@
 
 ## 技术
 
-单文件、零依赖的纯静态页面（HTML + CSS + 原生 JS）。字体用 Google Fonts 的 Bricolage Grotesque 与 Space Mono。
+零依赖、零构建的纯静态页面：核心逻辑全在单个 `index.html`（HTML + CSS + 原生 JS）里，另附一套图标与 PWA `manifest.webmanifest`，用于添加到主屏幕时的专属图标与全屏体验。字体用 Google Fonts 的 Bricolage Grotesque 与 Space Mono。
 
 ## 规划
 
