@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <title>省钱存折</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="记录自己省了多少钱的省钱存折，支持多币种与当时汇率快照，打开就能看到攒下的省钱余额。">
+<meta name="description" content="记录自己省了多少钱的省钱存折，支持多币种与当时汇率快照，打开就能看到攒下的省钱余额。中文 / 日本語。">
 <meta name="theme-color" content="#123f38">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -31,9 +31,9 @@
     --shadow:0 1px 2px rgba(28,40,36,.05), 0 8px 30px -12px rgba(28,40,36,.22);
     --shadow-vault:0 18px 48px -20px rgba(9,32,28,.7);
     --r:18px;
-    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Segoe UI",sans-serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Microsoft YaHei","Hiragino Sans GB","Segoe UI",sans-serif;
     --disp:"Bricolage Grotesque",var(--sans);
-    --mono:"Space Mono","PingFang SC",ui-monospace,monospace;
+    --mono:"Space Mono","PingFang SC","Hiragino Sans",ui-monospace,monospace;
   }
   @media (prefers-color-scheme:dark){
     :root:not([data-theme="light"]){
@@ -74,6 +74,7 @@
   .icon-btn{border:1px solid rgba(231,200,116,.32);background:rgba(255,255,255,.04);color:var(--gold-soft);
     border-radius:999px;width:36px;height:36px;font-size:15px;cursor:pointer;display:grid;place-items:center;transition:.2s;}
   .icon-btn:hover{background:rgba(231,200,116,.12)}
+  .icon-btn.lang{font-family:var(--sans);font-weight:700;font-size:14px}
 
   .bal-label-row{margin-top:22px;display:flex;align-items:center;justify-content:space-between;gap:10px}
   .bal-label{font-size:12.5px;letter-spacing:4px;color:rgba(243,237,224,.62);font-family:var(--mono)}
@@ -249,21 +250,22 @@
 </style>
 
 <div class="wrap">
-  <section class="book" aria-label="省钱余额">
+  <section class="book" data-i18n-aria="bookAria" aria-label="省钱余额">
     <div class="book-top">
       <div class="brand">
-        <div class="name">🪙 省钱存折</div>
+        <div class="name" data-i18n="brandName">🪙 省钱存折</div>
         <div class="seal">SAVINGS · PASSBOOK</div>
       </div>
       <div class="icons">
-        <button class="icon-btn" id="themeBtn" title="切换深浅色" aria-label="切换深浅色">◐</button>
-        <button class="icon-btn" id="gearBtn" title="设置 · 汇率 · 数据" aria-label="设置">⚙</button>
+        <button class="icon-btn lang" id="langBtn" title="语言 / 言語" aria-label="切换语言 / 言語切替">中</button>
+        <button class="icon-btn" id="themeBtn" data-i18n-title="themeTitle" data-i18n-aria="themeTitle" title="切换深浅色" aria-label="切换深浅色">◐</button>
+        <button class="icon-btn" id="gearBtn" data-i18n-title="gearTitle" data-i18n-aria="gearAria" title="设置 · 汇率 · 数据" aria-label="设置">⚙</button>
       </div>
     </div>
 
     <div class="bal-label-row">
-      <span class="bal-label">当前存款余额</span>
-      <select class="disp-cur" id="dispCur" aria-label="显示币种"></select>
+      <span class="bal-label" data-i18n="balLabel">当前存款余额</span>
+      <select class="disp-cur" id="dispCur" data-i18n-aria="dispCurAria" aria-label="显示币种"></select>
     </div>
     <div class="bal-row">
       <span class="bal-cur" id="balCur">¥</span>
@@ -280,29 +282,29 @@
     </div>
 
     <div class="book-stats">
-      <div class="s"><b id="stCount">0</b><span>笔记录</span></div>
-      <div class="s"><b id="stMonth">¥0</b><span>本月净省</span></div>
-      <div class="s"><b id="stBest">¥0</b><span>单笔最高</span></div>
+      <div class="s"><b id="stCount">0</b><span data-i18n="statCount">笔记录</span></div>
+      <div class="s"><b id="stMonth">¥0</b><span data-i18n="statMonth">本月净省</span></div>
+      <div class="s"><b id="stBest">¥0</b><span data-i18n="statBest">单笔最高</span></div>
     </div>
   </section>
 
   <form class="deposit" id="form" autocomplete="off">
-    <div class="kind-seg" id="kindSeg" role="tablist" aria-label="记这笔是省下还是花费">
-      <button type="button" data-kind="save" class="on" role="tab">🪙 省了一笔</button>
-      <button type="button" data-kind="spend" role="tab">🛒 花了一笔</button>
+    <div class="kind-seg" id="kindSeg" role="tablist" data-i18n-aria="kindSegAria" aria-label="记这笔是省下还是花费">
+      <button type="button" data-kind="save" class="on" role="tab" data-i18n="kindSave">🪙 省了一笔</button>
+      <button type="button" data-kind="spend" role="tab" data-i18n="kindSpend">🛒 花了一笔</button>
     </div>
     <h2 id="formTitle">刚刚又省了一笔？存进来 👇</h2>
     <div class="amount-field">
       <span class="yen" id="amtSym">¥</span>
-      <input id="amt" inputmode="decimal" type="text" placeholder="250" aria-label="省下的金额">
-      <select class="cur-sel" id="entryCur" aria-label="币种"></select>
+      <input id="amt" inputmode="decimal" type="text" placeholder="250" data-i18n-aria="amtAria" aria-label="省下的金额">
+      <select class="cur-sel" id="entryCur" data-i18n-aria="entryCurAria" aria-label="币种"></select>
     </div>
     <div class="date-field">
-      <span class="date-lab">日期</span>
-      <input id="entryDate" type="date" aria-label="省钱日期">
+      <span class="date-lab" data-i18n="dateLab">日期</span>
+      <input id="entryDate" type="date" data-i18n-aria="entryDateAria" aria-label="省钱日期">
     </div>
     <div class="note-field">
-      <input id="note" type="text" maxlength="40" placeholder="省在哪儿了？（比如：机票打折）" aria-label="备注">
+      <input id="note" type="text" maxlength="40" placeholder="省在哪儿了？（比如：机票打折）" data-i18n-aria="noteAria" aria-label="备注">
     </div>
     <div class="chips" id="chips"></div>
     <button class="save-btn" id="saveBtn" type="submit">存进省钱存款</button>
@@ -310,73 +312,73 @@
 
   <section class="ledger">
     <div class="ledger-head">
-      <h2>省钱流水</h2>
+      <h2 data-i18n="ledgerTitle">省钱流水</h2>
       <span class="hint" id="ledgerHint"></span>
     </div>
     <div class="rows" id="rows"></div>
     <div class="footer-actions" id="footerActions"></div>
   </section>
 
-  <p class="tip">数据只存在这台设备的浏览器里，不上传任何地方。<br>想换设备或备份？用下方 ⚙ 里的「导出 / 导入」。亏钱的时候翻出来看看你有多富 💚</p>
+  <p class="tip" data-i18n-html="tip">数据只存在这台设备的浏览器里，不上传任何地方。<br>想换设备或备份？用下方 ⚙ 里的「导出 / 导入」。亏钱的时候翻出来看看你有多富 💚</p>
 </div>
 
 <!-- Settings sheet -->
 <div class="overlay" id="overlay">
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="设置">
+  <div class="sheet" role="dialog" aria-modal="true" data-i18n-aria="sheetSettingsAria" aria-label="设置">
     <div class="sheet-grip"></div>
     <div class="sheet-head">
-      <h3>设置</h3>
-      <button class="close-x" id="closeSheet" aria-label="关闭">✕</button>
+      <h3 data-i18n="settingsTitle">设置</h3>
+      <button class="close-x" id="closeSheet" data-i18n-aria="closeAria" aria-label="关闭">✕</button>
     </div>
 
     <div class="sec">
-      <div class="lab">换算方式</div>
+      <div class="lab" data-i18n="convLabel">换算方式</div>
       <div class="seg" id="modeSeg">
-        <button data-mode="current" type="button">按当前汇率</button>
-        <button data-mode="historical" type="button">按当时汇率</button>
+        <button data-mode="current" type="button" data-i18n="modeCurrent">按当前汇率</button>
+        <button data-mode="historical" type="button" data-i18n="modeHistorical">按当时汇率</button>
       </div>
       <div class="seg-hint" id="modeHint"></div>
     </div>
 
     <div class="sec">
-      <div class="lab">汇率 · 欧洲央行数据（可联网更新，也可手改）</div>
+      <div class="lab" data-i18n="rateLabel">汇率 · 欧洲央行数据（可联网更新，也可手改）</div>
       <div class="rate-refresh">
-        <button class="btn" id="btnRefreshRates" type="button">↻ 联网更新汇率</button>
+        <button class="btn" id="btnRefreshRates" type="button" data-i18n="btnRefreshRates">↻ 联网更新汇率</button>
         <span class="rate-updated" id="rateUpdated"></span>
       </div>
       <div class="rate-list" id="rateList"></div>
     </div>
 
     <div class="sec">
-      <div class="lab">数据 · 导出与导入</div>
+      <div class="lab" data-i18n="dataLabel">数据 · 导出与导入</div>
       <div class="data-btns">
-        <button class="btn" id="btnExport" type="button">⬆ 导出</button>
-        <button class="btn" id="btnImportOpen" type="button">⬇ 导入</button>
+        <button class="btn" id="btnExport" type="button" data-i18n="btnExport">⬆ 导出</button>
+        <button class="btn" id="btnImportOpen" type="button" data-i18n="btnImportOpen">⬇ 导入</button>
       </div>
 
       <div id="exportBox" class="hidden">
-        <textarea class="io-area" id="exportText" readonly aria-label="导出数据"></textarea>
+        <textarea class="io-area" id="exportText" readonly data-i18n-aria="exportAria" aria-label="导出数据"></textarea>
         <div class="data-btns" style="margin-top:10px">
-          <button class="btn primary" id="btnCopy" type="button">复制到剪贴板</button>
-          <button class="btn" id="btnDownload" type="button">下载 .json 文件</button>
+          <button class="btn primary" id="btnCopy" type="button" data-i18n="btnCopy">复制到剪贴板</button>
+          <button class="btn" id="btnDownload" type="button" data-i18n="btnDownload">下载 .json 文件</button>
         </div>
-        <div class="io-hint">复制这段文字保存到备忘录/网盘，就是一份完整备份。在别的设备打开存折，用「导入」粘回去即可。</div>
+        <div class="io-hint" data-i18n="exportHint">复制这段文字保存到备忘录/网盘，就是一份完整备份。在别的设备打开存折，用「导入」粘回去即可。</div>
       </div>
 
       <div id="importBox" class="hidden">
-        <textarea class="io-area" id="importText" placeholder="把之前导出的内容粘贴到这里…" aria-label="导入数据"></textarea>
+        <textarea class="io-area" id="importText" data-i18n-ph="importPlaceholder" placeholder="把之前导出的内容粘贴到这里…" data-i18n-aria="importAria" aria-label="导入数据"></textarea>
         <div class="data-btns" style="margin-top:10px">
-          <button class="btn" id="btnPickFile" type="button">选择 .json 文件</button>
-          <button class="btn primary" id="btnImportGo" type="button">导入并覆盖</button>
+          <button class="btn" id="btnPickFile" type="button" data-i18n="btnPickFile">选择 .json 文件</button>
+          <button class="btn primary" id="btnImportGo" type="button" data-i18n="btnImportGo">导入并覆盖</button>
         </div>
         <input type="file" id="importFile" accept="application/json,.json,text/plain" class="hidden">
-        <div class="io-hint">导入会<strong>覆盖</strong>当前这台设备上的全部记录，请确认后再操作。</div>
+        <div class="io-hint" data-i18n-html="importHint">导入会<strong>覆盖</strong>当前这台设备上的全部记录，请确认后再操作。</div>
       </div>
     </div>
 
     <div class="sec">
       <div class="data-btns">
-        <button class="btn danger" id="btnReset" type="button">清空全部记录</button>
+        <button class="btn danger" id="btnReset" type="button" data-i18n="btnReset">清空全部记录</button>
       </div>
     </div>
   </div>
@@ -384,54 +386,54 @@
 
 <!-- Edit entry sheet -->
 <div class="overlay" id="editOverlay">
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="编辑记录">
+  <div class="sheet" role="dialog" aria-modal="true" data-i18n-aria="editSheetAria" aria-label="编辑记录">
     <div class="sheet-grip"></div>
     <div class="sheet-head">
-      <h3>编辑这笔</h3>
-      <button class="close-x" id="closeEdit" aria-label="关闭">✕</button>
+      <h3 data-i18n="editTitle">编辑这笔</h3>
+      <button class="close-x" id="closeEdit" data-i18n-aria="closeAria" aria-label="关闭">✕</button>
     </div>
 
     <div class="sec">
-      <div class="lab">类型</div>
+      <div class="lab" data-i18n="typeLabel">类型</div>
       <div class="kind-seg" id="editKindSeg">
-        <button type="button" data-kind="save">🪙 省下</button>
-        <button type="button" data-kind="spend">🛒 花费</button>
+        <button type="button" data-kind="save" data-i18n="editKindSave">🪙 省下</button>
+        <button type="button" data-kind="spend" data-i18n="editKindSpend">🛒 花费</button>
       </div>
     </div>
 
     <div class="sec">
-      <div class="lab">日期</div>
-      <input class="edit-input" id="editDate" type="date" aria-label="日期">
+      <div class="lab" data-i18n="dateLab">日期</div>
+      <input class="edit-input" id="editDate" type="date" data-i18n-aria="editDateAria" aria-label="日期">
     </div>
 
     <div class="sec">
-      <div class="lab">金额与币种</div>
+      <div class="lab" data-i18n="amtCurLabel">金额与币种</div>
       <div class="amount-field">
         <span class="yen" id="editSym">¥</span>
-        <input id="editAmt" inputmode="decimal" type="text" placeholder="250" aria-label="金额">
-        <select class="cur-sel" id="editCur" aria-label="币种"></select>
+        <input id="editAmt" inputmode="decimal" type="text" placeholder="250" data-i18n-aria="editAmtAria" aria-label="金额">
+        <select class="cur-sel" id="editCur" data-i18n-aria="editCurAria" aria-label="币种"></select>
       </div>
     </div>
 
     <div class="sec">
-      <div class="lab">备注</div>
-      <input class="edit-input" id="editNote" type="text" maxlength="40" placeholder="省在哪儿了？" aria-label="备注">
+      <div class="lab" data-i18n="noteLabel">备注</div>
+      <input class="edit-input" id="editNote" type="text" maxlength="40" data-i18n-ph="editNotePlaceholder" placeholder="省在哪儿了？" data-i18n-aria="editNoteAria" aria-label="备注">
     </div>
 
     <div class="sec" id="editRateSec">
-      <div class="lab">这一天的汇率</div>
+      <div class="lab" data-i18n="editRateLabel">这一天的汇率</div>
       <div class="rate-refresh">
-        <button class="btn" id="btnEditFetchRates" type="button">↻ 按这天联网取汇率</button>
+        <button class="btn" id="btnEditFetchRates" type="button" data-i18n="btnEditFetchRates">↻ 按这天联网取汇率</button>
       </div>
       <div class="rate-list" id="editRateList"></div>
       <div class="rate-note" id="editRateNote"></div>
-      <div class="seg-hint">改日期时会自动联网取当天的欧洲央行汇率并填入；「按当时汇率」模式下这笔就按这组数折算。取不到（周末/节假日/离线）时可手动填。</div>
+      <div class="seg-hint" data-i18n="editRateHint">改日期时会自动联网取当天的欧洲央行汇率并填入；「按当时汇率」模式下这笔就按这组数折算。取不到（周末/节假日/离线）时可手动填。</div>
     </div>
 
     <div class="sec">
       <div class="data-btns">
-        <button class="btn primary" id="editSave" type="button">保存修改</button>
-        <button class="btn danger" id="editDelete" type="button">删除这笔</button>
+        <button class="btn primary" id="editSave" type="button" data-i18n="editSaveBtn">保存修改</button>
+        <button class="btn danger" id="editDelete" type="button" data-i18n="editDeleteBtn">删除这笔</button>
       </div>
     </div>
   </div>
@@ -445,51 +447,205 @@
   "use strict";
   var KEY="savings.entries.v1", SEED="savings.seeded.v1", THEME="savings.theme.v1",
       RKEY="savings.rates.v1", DKEY="savings.display.v1", MKEY="savings.mode.v1",
-      RUKEY="savings.ratesUpdated.v1", RCKEY="savings.ratecache.v1";
+      RUKEY="savings.ratesUpdated.v1", RCKEY="savings.ratecache.v1", LKEY="savings.lang.v1";
   var $=function(s){return document.querySelector(s)};
   var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
-
-  // ---- currency table (rate = how many CNY 1 unit is worth) ----
-  var CURRENCIES=[
-    {code:"CNY",sym:"¥",name:"人民币",dec:0,rate:1},
-    {code:"USD",sym:"$",name:"美元",dec:2,rate:7.10},
-    {code:"HKD",sym:"HK$",name:"港币",dec:2,rate:0.91},
-    {code:"JPY",sym:"JP¥",name:"日元",dec:0,rate:0.048}
-  ];
-  var CMAP={};CURRENCIES.forEach(function(c){CMAP[c.code]=c});
 
   // ---- storage ----
   function loadJSON(k,f){try{var v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}}
   function saveJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
+  // ================= i18n =================
+  var I18N={
+    zh:{
+      docTitle:"省钱存折",
+      bookAria:"省钱余额", brandName:"🪙 省钱存折",
+      themeTitle:"切换深浅色", gearTitle:"设置 · 汇率 · 数据", gearAria:"设置",
+      balLabel:"当前存款余额", dispCurAria:"显示币种",
+      statCount:"笔记录", statMonth:"本月净省", statBest:"单笔最高",
+      kindSegAria:"记这笔是省下还是花费", kindSave:"🪙 省了一笔", kindSpend:"🛒 花了一笔",
+      formTitleSave:"刚刚又省了一笔？存进来 👇", formTitleSpend:"刚花了一笔？记下来，从存款里扣 👇",
+      amtAria:"省下的金额", entryCurAria:"币种", dateLab:"日期", entryDateAria:"省钱日期", noteAria:"备注",
+      notePlaceholderSave:"省在哪儿了？（比如：机票打折）", notePlaceholderSpend:"花在哪儿了？（比如：午饭 便当）",
+      saveBtnSave:"存进省钱存款", saveBtnSpend:"记下这笔花费",
+      ledgerTitle:"省钱流水",
+      ledgerHint:function(n){return "点一笔可编辑 · 共 "+n+" 笔"},
+      emptyBig:"还没有记录～", emptySub:"省下的第一笔钱，就从上面存进来吧。",
+      rowSaveFallback:"省钱", rowSpendFallback:"花费", tagEx:"示例", delTitle:"删除这笔", delAria:"删除",
+      clearExamples:"清空示例，开始记我自己的",
+      tip:'数据只存在这台设备的浏览器里，不上传任何地方。<br>想换设备或备份？用下方 ⚙ 里的「导出 / 导入」。亏钱的时候翻出来看看你有多富 💚',
+      modeNote:function(hist,cur){return (hist?"按记录当时的汇率折算":"按当前汇率折算")+" · 显示为 "+cur},
+      clearedExamples:"存折已清空，等你第一笔 ✨",
+      rateUpdated:"汇率已联网更新 🌐",
+      rateUpdateFail:function(err){return "联网更新失败（"+err+"），仍用当前汇率"},
+      sheetSettingsAria:"设置", settingsTitle:"设置", closeAria:"关闭",
+      convLabel:"换算方式", modeCurrent:"按当前汇率", modeHistorical:"按当时汇率",
+      modeHintHistorical:"每笔按记账那天的真实汇率（欧洲央行数据，自动联网获取）折算——回头看就是「当时省了多少」。",
+      modeHintCurrent:"所有记录都按最新汇率折算——看的是「现在值多少」。",
+      rateLabel:"汇率 · 欧洲央行数据（可联网更新，也可手改）", btnRefreshRates:"↻ 联网更新汇率", refreshing:"更新中…",
+      dataLabel:"数据 · 导出与导入", btnExport:"⬆ 导出", btnImportOpen:"⬇ 导入", exportAria:"导出数据",
+      btnCopy:"复制到剪贴板", btnDownload:"下载 .json 文件",
+      exportHint:"复制这段文字保存到备忘录/网盘，就是一份完整备份。在别的设备打开存折，用「导入」粘回去即可。",
+      importPlaceholder:"把之前导出的内容粘贴到这里…", importAria:"导入数据",
+      btnPickFile:"选择 .json 文件", btnImportGo:"导入并覆盖",
+      importHint:"导入会<strong>覆盖</strong>当前这台设备上的全部记录，请确认后再操作。",
+      btnReset:"清空全部记录",
+      copied:"已复制备份 ✨", copyManual:"请长按手动复制",
+      downloaded:"已生成下载 📄", downloadFail:"此环境不支持下载，请用「复制」备份", downloadName:"省钱存折备份-",
+      importPasteFirst:"请先粘贴或选择备份内容", importInvalidJson:"内容不是有效的备份 JSON", importNoData:"没找到记录数据",
+      importConfirm:"导入会覆盖当前这台设备上的全部记录，确定吗？",
+      imported:function(n){return '已导入 <span class="em">'+n+'</span> 笔记录 🎉'},
+      resetConfirm:"确定清空全部记录？此操作无法撤销。", resetDone:"已清空，随时可以重新开始 🌱",
+      editSheetAria:"编辑记录", editTitle:"编辑这笔", typeLabel:"类型", editKindSave:"🪙 省下", editKindSpend:"🛒 花费",
+      editDateAria:"日期", amtCurLabel:"金额与币种", editAmtAria:"金额", editCurAria:"币种",
+      noteLabel:"备注", editNotePlaceholder:"省在哪儿了？", editNoteAria:"备注",
+      editRateLabel:"这一天的汇率", btnEditFetchRates:"↻ 按这天联网取汇率",
+      editRateHint:"改日期时会自动联网取当天的欧洲央行汇率并填入；「按当时汇率」模式下这笔就按这组数折算。取不到（周末/节假日/离线）时可手动填。",
+      editSaveBtn:"保存修改", editDeleteBtn:"删除这笔",
+      editRateToday:"今天：已填入当前汇率（可在设置里联网更新）",
+      editRateFetching:function(ds){return "正在联网获取 "+ds+" 的汇率…"},
+      editRateFetched:function(d){return "已填入 "+d+" 的欧洲央行汇率"},
+      editRateFail:function(err){return "联网获取失败（"+err+"），可手动填写这天的汇率"},
+      deleteConfirm:"确定删除这笔？此操作无法撤销。", deletedOne:"已删除这笔 🗑️", updatedOne:"已更新这笔 ✨",
+      notYet:"尚未联网更新", justNow:"刚刚更新",
+      minsAgo:function(n){return n+" 分钟前更新"}, hoursAgo:function(n){return n+" 小时前更新"}, daysAgo:function(n){return n+" 天前更新"},
+      today:"今天", yesterday:"昨天",
+      errNoRates:"返回数据缺少汇率", errParse:"解析失败", errTimeout:"超时", errNetwork:"网络/跨域错误",
+      errRequest:"请求异常", errFail:"失败", errUnknown:"未知",
+      rateAria:function(code){return code+"汇率"}, editRateAria:function(code){return code+"当时汇率"},
+      curName:{CNY:"人民币",USD:"美元",HKD:"港币",JPY:"日元"},
+      sym:{CNY:"¥",USD:"$",HKD:"HK$",JPY:"JP¥"},
+      order:["CNY","USD","HKD","JPY"],
+      generic:{save:"省钱",spend:"花费"},
+      presets:["机票","打折","优惠券","会员价","二手","忍住没买","比价","返现","团购","海淘"],
+      spendPresets:["餐饮","日用品","交通","购物","娱乐","咖啡","房租","水电","通讯","医疗"],
+      iconSave:{"机票":"✈️","打折":"🏷️","优惠券":"🎟️","优惠码":"🎟️","会员":"⭐","二手":"♻️","忍住":"🛑","比价":"⚖️","返现":"💸","团购":"👥","自己做":"🍳","咖啡":"☕","海淘":"📦"},
+      iconSpend:{"餐饮":"🍜","吃饭":"🍜","拉面":"🍜","便当":"🍱","超市":"🛒","日用":"🧴","购物":"🛍️","衣":"👕","交通":"🚃","电车":"🚃","打车":"🚕","加油":"⛽","房租":"🏠","水":"💧","电":"💡","燃气":"🔥","通讯":"📱","手机":"📱","医疗":"💊","药":"💊","娱乐":"🎮","游戏":"🎮","书":"📚","酒":"🍺","旅行":"🧳","礼":"🎁"},
+      seeds:function(now){return [
+        {id:"ex1",amount:250,cur:"CNY",kind:"save",note:"机票提前订，省下差价",ts:now-86400000*2,ex:true},
+        {id:"ex2",amount:12,cur:"USD",kind:"save",note:"海淘用了优惠码",ts:now-86400000*5,ex:true},
+        {id:"ex4",amount:1200,cur:"JPY",kind:"spend",note:"拉面 · 餐饮",ts:now-86400000*6,ex:true},
+        {id:"ex3",amount:120,cur:"CNY",kind:"save",note:"忍住没买那件外套",ts:now-86400000*9,ex:true}
+      ]}
+    },
+    ja:{
+      docTitle:"節約貯金通帳",
+      bookAria:"節約残高", brandName:"🪙 節約貯金通帳",
+      themeTitle:"ライト / ダーク切り替え", gearTitle:"設定 · レート · データ", gearAria:"設定",
+      balLabel:"現在の貯金残高", dispCurAria:"表示通貨",
+      statCount:"件の記録", statMonth:"今月の純節約", statBest:"最高額（1件）",
+      kindSegAria:"節約か出費かを選択", kindSave:"🪙 節約した", kindSpend:"🛒 出費した",
+      formTitleSave:"また節約できた？記録しよう 👇", formTitleSpend:"出費した？記録して貯金から引く 👇",
+      amtAria:"節約した金額", entryCurAria:"通貨", dateLab:"日付", entryDateAria:"節約した日付", noteAria:"メモ",
+      notePlaceholderSave:"どこで節約？（例：航空券セール）", notePlaceholderSpend:"何に使った？（例：昼食 弁当）",
+      saveBtnSave:"貯金に入れる", saveBtnSpend:"この出費を記録",
+      ledgerTitle:"節約の記録",
+      ledgerHint:function(n){return "タップで編集 · 全 "+n+" 件"},
+      emptyBig:"まだ記録がありません～", emptySub:"最初の節約を、上から記録してみましょう。",
+      rowSaveFallback:"節約", rowSpendFallback:"出費", tagEx:"サンプル", delTitle:"この記録を削除", delAria:"削除",
+      clearExamples:"サンプルを消して自分の記録を始める",
+      tip:'データはこの端末のブラウザだけに保存され、どこにもアップロードされません。<br>機種変更やバックアップは下の ⚙ の「エクスポート / インポート」から。損した気分のときは開いて、どれだけ貯まったか見てみましょう 💚',
+      modeNote:function(hist,cur){return (hist?"当時のレートで換算":"現在のレートで換算")+" · 表示："+cur},
+      clearedExamples:"通帳を空にしました。最初の1件をどうぞ ✨",
+      rateUpdated:"レートを更新しました 🌐",
+      rateUpdateFail:function(err){return "更新に失敗（"+err+"）、現在のレートを使用します"},
+      sheetSettingsAria:"設定", settingsTitle:"設定", closeAria:"閉じる",
+      convLabel:"換算方法", modeCurrent:"現在のレート", modeHistorical:"当時のレート",
+      modeHintHistorical:"各記録を、記帳したその日の実際のレート（欧州中央銀行データ・自動取得）で換算します。あとで見ても「当時いくら節約したか」がわかります。",
+      modeHintCurrent:"すべての記録を最新のレートで換算します。「今いくらの価値か」がわかります。",
+      rateLabel:"レート · 欧州中央銀行データ（オンライン更新・手動編集OK）", btnRefreshRates:"↻ レートをオンライン更新", refreshing:"更新中…",
+      dataLabel:"データ · エクスポートとインポート", btnExport:"⬆ エクスポート", btnImportOpen:"⬇ インポート", exportAria:"データをエクスポート",
+      btnCopy:"クリップボードにコピー", btnDownload:".json ファイルをダウンロード",
+      exportHint:"このテキストをメモやクラウドに保存すれば、完全なバックアップになります。別の端末で通帳を開き「インポート」で貼り付ければ復元できます。",
+      importPlaceholder:"以前エクスポートした内容をここに貼り付け…", importAria:"データをインポート",
+      btnPickFile:".json ファイルを選択", btnImportGo:"インポートして上書き",
+      importHint:"インポートはこの端末の全記録を<strong>上書き</strong>します。ご確認のうえ実行してください。",
+      btnReset:"全記録を削除",
+      copied:"バックアップをコピーしました ✨", copyManual:"長押しで手動コピーしてください",
+      downloaded:"ダウンロードを作成しました 📄", downloadFail:"この環境ではダウンロードできません。「コピー」でバックアップしてください", downloadName:"節約貯金通帳バックアップ-",
+      importPasteFirst:"先にバックアップ内容を貼り付けるか選択してください", importInvalidJson:"有効なバックアップ JSON ではありません", importNoData:"記録データが見つかりません",
+      importConfirm:"インポートすると、この端末の全記録が上書きされます。よろしいですか？",
+      imported:function(n){return '<span class="em">'+n+'</span> 件の記録をインポートしました 🎉'},
+      resetConfirm:"全ての記録を削除しますか？この操作は取り消せません。", resetDone:"削除しました。いつでも再スタートできます 🌱",
+      editSheetAria:"記録を編集", editTitle:"この記録を編集", typeLabel:"種類", editKindSave:"🪙 節約", editKindSpend:"🛒 出費",
+      editDateAria:"日付", amtCurLabel:"金額と通貨", editAmtAria:"金額", editCurAria:"通貨",
+      noteLabel:"メモ", editNotePlaceholder:"どこで節約？", editNoteAria:"メモ",
+      editRateLabel:"この日のレート", btnEditFetchRates:"↻ この日のレートを取得",
+      editRateHint:"日付を変えると、自動でその日の欧州中央銀行レートを取得して入力します。「当時のレート」モードではこの数値で換算されます。取得できない（週末・祝日・オフライン）ときは手動で入力できます。",
+      editSaveBtn:"変更を保存", editDeleteBtn:"この記録を削除",
+      editRateToday:"今日：現在のレートを入力しました（設定でオンライン更新できます）",
+      editRateFetching:function(ds){return ds+" のレートを取得中…"},
+      editRateFetched:function(d){return d+" の欧州中央銀行レートを入力しました"},
+      editRateFail:function(err){return "取得に失敗（"+err+"）。この日のレートは手動で入力できます"},
+      deleteConfirm:"この記録を削除しますか？この操作は取り消せません。", deletedOne:"削除しました 🗑️", updatedOne:"更新しました ✨",
+      notYet:"未更新", justNow:"たった今更新",
+      minsAgo:function(n){return n+" 分前に更新"}, hoursAgo:function(n){return n+" 時間前に更新"}, daysAgo:function(n){return n+" 日前に更新"},
+      today:"今日", yesterday:"昨日",
+      errNoRates:"レートデータがありません", errParse:"解析エラー", errTimeout:"タイムアウト", errNetwork:"通信 / CORS エラー",
+      errRequest:"リクエストエラー", errFail:"失敗", errUnknown:"不明",
+      rateAria:function(code){return code+" のレート"}, editRateAria:function(code){return code+" の当時のレート"},
+      curName:{CNY:"人民元",USD:"米ドル",HKD:"香港ドル",JPY:"日本円"},
+      sym:{CNY:"元",USD:"$",HKD:"HK$",JPY:"¥"},
+      order:["JPY","USD","HKD","CNY"],
+      generic:{save:"節約",spend:"出費"},
+      presets:["航空券","セール","クーポン","会員価格","中古","がまんした","価格比較","キャッシュバック","共同購入","海外通販"],
+      spendPresets:["外食","日用品","交通","買い物","娯楽","コーヒー","家賃","水道光熱","通信","医療"],
+      iconSave:{"航空券":"✈️","飛行機":"✈️","セール":"🏷️","割引":"🏷️","クーポン":"🎟️","ポイント":"⭐","会員":"⭐","中古":"♻️","がまん":"🛑","我慢":"🛑","比較":"⚖️","キャッシュバック":"💸","還元":"💸","共同購入":"👥","自炊":"🍳","コーヒー":"☕","通販":"📦"},
+      iconSpend:{"外食":"🍜","食事":"🍜","ラーメン":"🍜","弁当":"🍱","スーパー":"🛒","日用品":"🧴","買い物":"🛍️","ショッピング":"🛍️","服":"👕","交通":"🚃","電車":"🚃","タクシー":"🚕","ガソリン":"⛽","家賃":"🏠","水道":"💧","電気":"💡","ガス":"🔥","通信":"📱","スマホ":"📱","医療":"💊","薬":"💊","娯楽":"🎮","ゲーム":"🎮","本":"📚","コーヒー":"☕","酒":"🍺","旅行":"🧳","プレゼント":"🎁","ギフト":"🎁"},
+      seeds:function(now){return [
+        {id:"ex1",amount:3500,cur:"JPY",kind:"save",note:"航空券を早割で予約",ts:now-86400000*2,ex:true},
+        {id:"ex2",amount:20,cur:"USD",kind:"save",note:"海外通販でクーポン利用",ts:now-86400000*5,ex:true},
+        {id:"ex4",amount:1200,cur:"JPY",kind:"spend",note:"ラーメン · 外食",ts:now-86400000*6,ex:true},
+        {id:"ex3",amount:2000,cur:"JPY",kind:"save",note:"欲しかった上着をがまん",ts:now-86400000*9,ex:true}
+      ]}
+    }
+  };
+  // any-language generic note words (so switching language still hides placeholder notes)
+  var GENERIC_ALL={};["zh","ja"].forEach(function(L){var g=I18N[L].generic;GENERIC_ALL[g.save]=1;GENERIC_ALL[g.spend]=1});
+
+  // pick language: stored preference → browser hint → Chinese default
+  var lang=loadJSON(LKEY,null);
+  if(lang!=="zh"&&lang!=="ja"){
+    lang=(String(navigator.language||navigator.userLanguage||"").toLowerCase().indexOf("ja")===0)?"ja":"zh";
+  }
+  function t(k){var v=I18N[lang][k];return v==null?I18N.zh[k]:v}   // static strings only
+  function L(){return I18N[lang]}                                 // dynamic dict access
+
+  // ---- currency table (rate = how many CNY 1 unit is worth; CNY is the pivot) ----
+  var CURRENCIES=[
+    {code:"CNY",dec:0,rate:1},
+    {code:"USD",dec:2,rate:7.10},
+    {code:"HKD",dec:2,rate:0.91},
+    {code:"JPY",dec:0,rate:0.048}
+  ];
+  var CMAP={};CURRENCIES.forEach(function(c){CMAP[c.code]=c});
+  function symOf(code){return L().sym[code]||(CMAP[code]?code:code)}
+  function nameOf(code){return L().curName[code]||code}
+
   var entries=loadJSON(KEY,[]);
-  // migrate: ensure each entry has a currency + a kind ("save" 省下 / "spend" 花费)
+  // migrate: ensure each entry has a currency + a kind ("save" / "spend")
   entries.forEach(function(e){if(!e.cur)e.cur="CNY";if(e.kind!=="spend")e.kind="save"});
 
   var currentRates=loadJSON(RKEY,null);
   if(!currentRates){currentRates={};CURRENCIES.forEach(function(c){currentRates[c.code]=c.rate})}
   else{CURRENCIES.forEach(function(c){if(currentRates[c.code]==null)currentRates[c.code]=c.rate})}
 
-  var displayCur=loadJSON(DKEY,"CNY"); if(!CMAP[displayCur])displayCur="CNY";
+  var displayCur=loadJSON(DKEY,null);
+  if(!displayCur||!CMAP[displayCur])displayCur=(lang==="ja"?"JPY":"CNY");
   var mode=loadJSON(MKEY,"current"); if(mode!=="historical")mode="current";
 
   var ratesUpdatedAt=loadJSON(RUKEY,0)||0;
   var rateCache=loadJSON(RCKEY,{}); if(!rateCache||typeof rateCache!=="object")rateCache={};
 
-  // first-time samples
-  var seeded=false;try{seeded=localStorage.getItem(SEED)==="1"}catch(e){}
-  if(!entries.length && !seeded){
-    var now=Date.now();
-    entries=[
-      {id:"ex1",amount:250,cur:"CNY",kind:"save",note:"机票提前订，省下差价",ts:now-86400000*2,ex:true,rates:snap()},
-      {id:"ex2",amount:12,cur:"USD",kind:"save",note:"海淘用了优惠码",ts:now-86400000*5,ex:true,rates:snap()},
-      {id:"ex4",amount:1200,cur:"JPY",kind:"spend",note:"拉面 · 餐饮",ts:now-86400000*6,ex:true,rates:snap()},
-      {id:"ex3",amount:120,cur:"CNY",kind:"save",note:"忍住没买那件外套",ts:now-86400000*9,ex:true,rates:snap()}
-    ];
-  }
   function snap(){var o={};for(var k in currentRates)o[k]=currentRates[k];return o}
   // tidy a rate to 6 significant figures (keeps accuracy, drops the ugly long tail)
   function roundRate(v){return (v!=null&&isFinite(v)&&v!==0)?+Number(v).toPrecision(6):v}
+
+  // first-time samples (localized to the picked language)
+  var seeded=false;try{seeded=localStorage.getItem(SEED)==="1"}catch(e){}
+  if(!entries.length && !seeded){
+    entries=L().seeds(Date.now()).map(function(e){e.rates=snap();return e});
+  }
 
   // ---- rate math ----
   function rateOf(map,code){var v=map&&map[code];return (v==null||!isFinite(v))?(CMAP[code]?CMAP[code].rate:1):v}
@@ -500,17 +656,15 @@
     return convert(+e.amount||0, e.cur||"CNY", to, map);
   }
   function isSpend(e){return e.kind==="spend"}
-  // signedValue → how a record moves the balance: 省下(+) / 花费(−)
+  // signedValue → how a record moves the balance: save(+) / spend(−)
   function signedValue(e,to){return isSpend(e)?-entryValue(e,to):entryValue(e,to)}
   function total(to){return entries.reduce(function(a,e){return a+signedValue(e,to)},0)}
 
   // ---- live exchange rates (Frankfurter / European Central Bank, keyless, historical-capable) ----
-  // try the current v1 host first, then the legacy host as fallback
   var API_ENDPOINTS=["https://api.frankfurter.dev/v1/","https://api.frankfurter.app/"];
   // currencies our table shares with the ECB dataset (CNY is the base, always 1)
   var API_CODES=["USD","HKD","JPY"];
-  var lastRateError="";                 // human-readable reason of the most recent failed fetch (for UI)
-  // one GET → cb(ratesMap|null, actualDate|null, errText)
+  var lastRateError="";
   function xhrGetRates(url,cb){
     var done=false;
     function finish(map,date,err){if(done)return;done=true;cb(map,date,err)}
@@ -523,19 +677,16 @@
           try{
             var j=JSON.parse(xhr.responseText),out={CNY:1},got=false;
             if(j&&j.rates)for(var code in j.rates){var per=+j.rates[code];if(per>0&&isFinite(per)){out[code]=roundRate(1/per);got=true}}
-            if(got)finish(out,j.date||null,"");else finish(null,null,"返回数据缺少汇率");
-          }catch(e){finish(null,null,"解析失败")}
+            if(got)finish(out,j.date||null,"");else finish(null,null,t("errNoRates"));
+          }catch(e){finish(null,null,t("errParse"))}
         }else finish(null,null,"HTTP "+(xhr.status||0));
       };
-      xhr.ontimeout=function(){finish(null,null,"超时")};
-      xhr.onerror=function(){finish(null,null,"网络/跨域错误")};
+      xhr.ontimeout=function(){finish(null,null,t("errTimeout"))};
+      xhr.onerror=function(){finish(null,null,t("errNetwork"))};
       xhr.send();
-    }catch(e){finish(null,null,"请求异常")}
+    }catch(e){finish(null,null,t("errRequest"))}
   }
-  // fetch one day's rates in our "CNY per 1 unit" semantics, trying endpoints in order.
-  // dateStr: "latest" or "YYYY-MM-DD". cb(ratesMap|null, actualDate|null)
   function fetchRatesFor(dateStr,cb){
-    // historical dates are immutable → safe to cache; "latest" must always hit the network
     if(dateStr!=="latest"){var cached=rateCache[dateStr];if(cached&&cached.rates){cb(cloneRates(cached.rates),cached.date||null);return}}
     var qs="?base=CNY&symbols="+API_CODES.join(","),i=0;
     function tryNext(){
@@ -547,17 +698,16 @@
           var d=date||(dateStr!=="latest"?dateStr:null);
           if(dateStr!=="latest"){rateCache[dateStr]={rates:cloneRates(out),date:d};trimRateCache();saveJSON(RCKEY,rateCache);}
           cb(cloneRates(out),d);
-        }else{lastRateError=err||"失败";tryNext();}
+        }else{lastRateError=err||t("errFail");tryNext();}
       });
     }
     tryNext();
   }
   function cloneRates(m){var o={};for(var k in m)o[k]=m[k];return o}
-  function trimRateCache(){ // keep the cache small: newest ~60 historical dates
+  function trimRateCache(){
     var keys=Object.keys(rateCache);if(keys.length<=60)return;
     keys.sort().slice(0,keys.length-60).forEach(function(k){delete rateCache[k]});
   }
-  // merge fetched supported codes onto the current full snapshot so unsupported currencies keep a sane value
   function mergeSnapshot(fetched){var base=snap();if(fetched)for(var k in fetched)base[k]=fetched[k];base.CNY=1;return base;}
 
   function refreshCurrentRates(opts){
@@ -569,22 +719,21 @@
         ratesUpdatedAt=Date.now();saveJSON(RUKEY,ratesUpdatedAt);
         if($("#overlay").classList.contains("show")){buildRates();updateRateUpdatedLabel()}
         render();
-        if(opts.toast)toast("汇率已联网更新 🌐");
-      }else if(opts.toast){toast("联网更新失败（"+(lastRateError||"未知")+"），仍用当前汇率");}
+        if(opts.toast)toast(t("rateUpdated"));
+      }else if(opts.toast){toast(L().rateUpdateFail(lastRateError||t("errUnknown")));}
       if(opts.done)opts.done(!!map);
     });
   }
   function fmtAgo(ts){
-    if(!ts)return "尚未联网更新";
+    if(!ts)return t("notYet");
     var s=Math.floor((Date.now()-ts)/1000);
-    if(s<60)return "刚刚更新";
-    if(s<3600)return Math.floor(s/60)+" 分钟前更新";
-    if(s<86400)return Math.floor(s/3600)+" 小时前更新";
-    return Math.floor(s/86400)+" 天前更新";
+    if(s<60)return t("justNow");
+    if(s<3600)return L().minsAgo(Math.floor(s/60));
+    if(s<86400)return L().hoursAgo(Math.floor(s/3600));
+    return L().daysAgo(Math.floor(s/86400));
   }
   function updateRateUpdatedLabel(){var el=$("#rateUpdated");if(el)el.textContent=fmtAgo(ratesUpdatedAt)}
   function isTodayTs(ts){var d=new Date(ts),n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate()}
-  // for a past-dated entry, pull that day's real ECB rates into its snapshot (async, best-effort)
   function applyHistoricalRates(entry,cb){
     if(isTodayTs(entry.ts)){if(cb)cb(false);return}
     fetchRatesFor(toDateInput(entry.ts),function(map){
@@ -598,12 +747,12 @@
     if(dec===0||Math.abs(n-Math.round(n))<0.005)return Math.round(n).toLocaleString("en-US");
     return n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   }
-  function money(v,code){var c=CMAP[code]||CMAP.CNY;return c.sym+fmtNum(v,c.dec)}
+  function money(v,code){var c=CMAP[code]||CMAP.CNY;return symOf(c.code)+fmtNum(v,c.dec)}
   function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
   function fmtDate(ts){
     var d=new Date(ts);
     var days=Math.floor((new Date().setHours(0,0,0,0)-new Date(ts).setHours(0,0,0,0))/86400000);
-    if(days===0)return "今天";if(days===1)return "昨天";
+    if(days===0)return t("today");if(days===1)return t("yesterday");
     var sameYear=d.getFullYear()===new Date().getFullYear();
     return (sameYear?"":d.getFullYear()+"年")+(d.getMonth()+1)+"月"+d.getDate()+"日";
   }
@@ -615,26 +764,17 @@
     var y=+p[0],mo=+p[1]-1,d=+p[2];
     if(!y||isNaN(mo)||!d)return Date.now();
     var now=new Date();
-    // keep real time-of-day when it's today (so same-day entries keep their order); otherwise anchor to local noon
     if(y===now.getFullYear()&&mo===now.getMonth()&&d===now.getDate())return Date.now();
     return new Date(y,mo,d,12,0,0,0).getTime();
   }
-  function iconFor(note){
-    var map={"机票":"✈️","打折":"🏷️","优惠券":"🎟️","优惠码":"🎟️","会员":"⭐","二手":"♻️","忍住":"🛑","比价":"⚖️","返现":"💸","团购":"👥","自己做":"🍳","咖啡":"☕","海淘":"📦"};
-    for(var k in map){if(note&&note.indexOf(k)>=0)return map[k]}
-    return "🪙";
-  }
-  function iconForSpend(note){
-    var map={"餐饮":"🍜","吃饭":"🍜","拉面":"🍜","便当":"🍱","超市":"🛒","日用":"🧴","购物":"🛍️","衣":"👕","交通":"🚃","电车":"🚃","打车":"🚕","加油":"⛽","房租":"🏠","水":"💧","电":"💡","燃气":"🔥","通讯":"📱","手机":"📱","医疗":"💊","药":"💊","娱乐":"🎮","游戏":"🎮","书":"📚","咖啡":"☕","酒":"🍺","旅行":"🧳","礼":"🎁"};
-    for(var k in map){if(note&&note.indexOf(k)>=0)return map[k]}
-    return "🛒";
-  }
+  function iconFor(note){var map=L().iconSave;for(var k in map){if(note&&note.indexOf(k)>=0)return map[k]}return "🪙"}
+  function iconForSpend(note){var map=L().iconSpend;for(var k in map){if(note&&note.indexOf(k)>=0)return map[k]}return "🛒"}
   function entryIcon(e){return isSpend(e)?iconForSpend(e.note):iconFor(e.note)}
 
   // ---- theme ----
   (function(){
-    var t=null;try{t=localStorage.getItem(THEME)}catch(e){}
-    if(t)document.documentElement.setAttribute("data-theme",t);
+    var th=null;try{th=localStorage.getItem(THEME)}catch(e){}
+    if(th)document.documentElement.setAttribute("data-theme",th);
     $("#themeBtn").addEventListener("click",function(){
       var cur=document.documentElement.getAttribute("data-theme");
       var dark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
@@ -644,49 +784,44 @@
     });
   })();
 
-  // ---- populate currency selects ----
+  // ---- populate currency selects (ordered per language) ----
   function fillCurSelect(sel,selected){
     sel.innerHTML="";
-    CURRENCIES.forEach(function(c){
+    L().order.forEach(function(code){
+      var c=CMAP[code];if(!c)return;
       var o=document.createElement("option");
-      o.value=c.code;o.textContent=c.code+" "+c.sym+" "+c.name;
+      o.value=c.code;o.textContent=c.code+" "+symOf(c.code)+" "+nameOf(c.code);
       if(c.code===selected)o.selected=true;
       sel.appendChild(o);
     });
   }
-  fillCurSelect($("#dispCur"),displayCur);
-  fillCurSelect($("#entryCur"),displayCur);
-  $("#amtSym").textContent=CMAP[displayCur].sym;
 
-  function resetEntryDate(){var t=toDateInput(Date.now());var el=$("#entryDate");el.value=t;el.max=t;}
-  resetEntryDate();
+  function resetEntryDate(){var tt=toDateInput(Date.now());var el=$("#entryDate");el.value=tt;el.max=tt;}
 
   $("#dispCur").addEventListener("change",function(){
     displayCur=this.value;saveJSON(DKEY,displayCur);
     render();
   });
   $("#entryCur").addEventListener("change",function(){
-    $("#amtSym").textContent=CMAP[this.value].sym;
+    $("#amtSym").textContent=symOf(this.value);
   });
 
   // ---- note suggestions: your frequent notes first, then presets ----
-  var presets=["机票","打折","优惠券","会员价","二手","忍住没买","比价","返现","团购","海淘"];
-  var spendPresets=["餐饮","日用品","交通","购物","娱乐","咖啡","房租","水电","通讯","医疗"];
-  var GENERIC={save:"省钱",spend:"花费"};
+  var presets=L().presets, spendPresets=L().spendPresets, GENERIC=L().generic;
   var curKind="save";
   var chipsEl=$("#chips");
   function topNotes(limit,kind){
-    var freq={},last={},generic=GENERIC[kind];
+    var freq={},last={};
     entries.forEach(function(e){
-      if(e.ex)return;                        // skip seeded examples
-      if((e.kind==="spend"?"spend":"save")!==kind)return;   // suggestions match the current kind
+      if(e.ex)return;
+      if((e.kind==="spend"?"spend":"save")!==kind)return;
       var n=(e.note||"").trim();
-      if(!n||n===generic)return;             // skip empty / generic
+      if(!n||GENERIC_ALL[n])return;
       freq[n]=(freq[n]||0)+1;
       if(!last[n]||e.ts>last[n])last[n]=e.ts;
     });
     return Object.keys(freq).sort(function(a,b){
-      return (freq[b]-freq[a])||(last[b]-last[a]);   // by count, then recency
+      return (freq[b]-freq[a])||(last[b]-last[a]);
     }).slice(0,limit);
   }
   function fillNote(text,btn){
@@ -699,19 +834,18 @@
     var pool=curKind==="spend"?spendPresets:presets;
     var used=topNotes(8,curKind),seen={},list=used.slice();
     used.forEach(function(n){seen[n]=1});
-    for(var i=0;i<pool.length&&list.length<10;i++){   // pad with presets
+    for(var i=0;i<pool.length&&list.length<10;i++){
       if(!seen[pool[i]]){list.push(pool[i]);seen[pool[i]]=1}
     }
     chipsEl.innerHTML="";
     list.forEach(function(p,idx){
       var b=document.createElement("button");b.type="button";
-      b.className="chip"+(idx<used.length?" freq":"");   // mark your-history chips
+      b.className="chip"+(idx<used.length?" freq":"");
       b.textContent=p;
       b.addEventListener("click",function(){fillNote(p,b)});
       chipsEl.appendChild(b);
     });
   }
-  renderChips();
 
   // ---- save / spend toggle for the deposit form ----
   var depositForm=$("#form");
@@ -719,9 +853,9 @@
     var spend=curKind==="spend";
     depositForm.classList.toggle("spend-mode",spend);
     $("#kindSeg").querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-kind")===curKind)});
-    $("#formTitle").textContent=spend?"刚花了一笔？记下来，从存款里扣 👇":"刚刚又省了一笔？存进来 👇";
-    $("#note").placeholder=spend?"花在哪儿了？（比如：午饭 便当）":"省在哪儿了？（比如：机票打折）";
-    var btn=$("#saveBtn");btn.classList.toggle("spend",spend);btn.textContent=spend?"记下这笔花费":"存进省钱存款";
+    $("#formTitle").textContent=spend?t("formTitleSpend"):t("formTitleSave");
+    $("#note").placeholder=spend?t("notePlaceholderSpend"):t("notePlaceholderSave");
+    var btn=$("#saveBtn");btn.classList.toggle("spend",spend);btn.textContent=spend?t("saveBtnSpend"):t("saveBtnSave");
     chipsEl.querySelectorAll(".chip").forEach(function(c){c.classList.remove("on")});
     renderChips();
   }
@@ -730,20 +864,19 @@
     curKind=b.getAttribute("data-kind")==="spend"?"spend":"save";
     updateFormKind();
   });
-  updateFormKind();
 
   // ---- render ----
   var lastBal=0;
   function render(animate){
-    var t=total(displayCur);
-    $("#balCur").textContent=CMAP[displayCur].sym;
-    if(animate)countUp($("#bal"),lastBal,t,CMAP[displayCur].dec);
-    else $("#bal").textContent=fmtNum(t,CMAP[displayCur].dec);
-    lastBal=t;
-    updateProgress(t);
+    var tv=total(displayCur);
+    $("#balCur").textContent=symOf(displayCur);
+    if(animate)countUp($("#bal"),lastBal,tv,CMAP[displayCur].dec);
+    else $("#bal").textContent=fmtNum(tv,CMAP[displayCur].dec);
+    lastBal=tv;
+    updateProgress();
     renderChips();
 
-    $("#modeNote").textContent=(mode==="historical"?"按记录当时的汇率折算":"按当前汇率折算")+" · 显示为 "+displayCur;
+    $("#modeNote").textContent=L().modeNote(mode==="historical",displayCur);
 
     $("#stCount").textContent=entries.length;
     var mNow=new Date();
@@ -754,7 +887,7 @@
 
     var rows=$("#rows");rows.innerHTML="";
     if(!entries.length){
-      rows.innerHTML='<div class="empty"><div class="big">还没有记录～</div>省下的第一笔钱，就从上面存进来吧。</div>';
+      rows.innerHTML='<div class="empty"><div class="big">'+escapeHtml(t("emptyBig"))+'</div>'+escapeHtml(t("emptySub"))+'</div>';
     }else{
       entries.slice().sort(function(a,b){return b.ts-a.ts}).forEach(function(e){
         var row=document.createElement("div");
@@ -764,25 +897,25 @@
         var sign=spend?"−":"+";
         row.innerHTML=
           '<div class="ic">'+entryIcon(e)+'</div>'+
-          '<div class="mid"><div class="n">'+escapeHtml(e.note||(spend?"花费":"省钱"))+(e.ex?'<span class="tag-ex">示例</span>':'')+'</div>'+
+          '<div class="mid"><div class="n">'+escapeHtml(e.note||(spend?t("rowSpendFallback"):t("rowSaveFallback")))+(e.ex?'<span class="tag-ex">'+escapeHtml(t("tagEx"))+'</span>':'')+'</div>'+
             '<div class="d">'+fmtDate(e.ts)+'</div></div>'+
           '<div class="amt-wrap"><div class="amt-main">'+sign+money(+e.amount||0,e.cur||"CNY")+'</div>'+
             (showSub?'<div class="amt-sub">≈ '+sign+money(entryValue(e,displayCur),displayCur)+'</div>':'')+'</div>'+
-          '<button class="del" title="删除这笔" aria-label="删除">✕</button>';
+          '<button class="del" title="'+escapeHtml(t("delTitle"))+'" aria-label="'+escapeHtml(t("delAria"))+'">✕</button>';
         row.querySelector(".del").addEventListener("click",function(ev){ev.stopPropagation();removeEntry(e.id)});
         row.addEventListener("click",function(ev){if(ev.target.closest(".del"))return;openEdit(e.id)});
         rows.appendChild(row);
       });
     }
-    $("#ledgerHint").textContent=entries.length?("点一笔可编辑 · 共 "+entries.length+" 笔"):"";
+    $("#ledgerHint").textContent=entries.length?L().ledgerHint(entries.length):"";
 
     var fa=$("#footerActions");fa.innerHTML="";
     if(entries.some(function(e){return e.ex})){
-      var g=document.createElement("button");g.className="ghost";g.textContent="清空示例，开始记我自己的";
+      var g=document.createElement("button");g.className="ghost";g.textContent=t("clearExamples");
       g.addEventListener("click",function(){
         entries=entries.filter(function(e){return !e.ex});
         try{localStorage.setItem(SEED,"1")}catch(e){}
-        saveJSON(KEY,entries);render();toast("存折已清空，等你第一笔 ✨");
+        saveJSON(KEY,entries);render();toast(t("clearedExamples"));
       });
       fa.appendChild(g);
     }
@@ -797,22 +930,23 @@
   function countUp(el,from,to,dec){
     if(reduce||from===to){el.textContent=fmtNum(to,dec);return}
     var start=performance.now(),dur=Math.min(1100,420+Math.abs(to-from)*1.2);
-    function step(t){var p=Math.min(1,(t-start)/dur),e=1-Math.pow(1-p,3);
+    function step(tt){var p=Math.min(1,(tt-start)/dur),e=1-Math.pow(1-p,3);
       el.textContent=fmtNum(from+(to-from)*e,dec);
       if(p<1)requestAnimationFrame(step);else el.textContent=fmtNum(to,dec);}
     requestAnimationFrame(step);
   }
 
-  // ---- milestone progress (non-text positive feedback) ----
+  // ---- milestone progress (computed in the CNY pivot so it's stable across display currencies) ----
   var marks=[100,300,500,1000,2000,3000,5000,8000,10000,20000,30000,50000,100000];
   function prevMark(v){var p=0;for(var i=0;i<marks.length;i++){if(marks[i]<=v)p=marks[i];else break}return p}
   function nextMark(v){for(var i=0;i<marks.length;i++){if(marks[i]>v)return marks[i]}return Math.ceil((v+1)/100000)*100000}
   function crossed(from,to){for(var i=0;i<marks.length;i++){if(from<marks[i]&&to>=marks[i])return marks[i]}return 0}
-  function updateProgress(v){
+  function updateProgress(){
+    var v=total("CNY");
     var prev=prevMark(v),next=nextMark(v);
     var pct=next>prev?Math.max(0,Math.min(1,(v-prev)/(next-prev))):0;
     $("#progressFill").style.width=(pct*100).toFixed(2)+"%";
-    $("#progressNext").textContent=money(next,displayCur);
+    $("#progressNext").textContent=money(convert(next,"CNY",displayCur,currentRates),displayCur);
     $("#progress").classList.toggle("done",v>0&&pct>=0.999);
   }
 
@@ -828,13 +962,12 @@
       c.style.left=ox+"px";c.style.top=oy+"px";layer.appendChild(c);
       var ang=(-90+(Math.random()*120-60))*Math.PI/180,vel=6+Math.random()*7;
       var vx=Math.cos(ang)*vel,vy=Math.sin(ang)*vel-4,x=0,y=0,rot=0,vr=(Math.random()-.5)*24,life=0,start=performance.now();
-      function step(t){life=(t-start)/1000;vy+=.35;x+=vx;y+=vy;rot+=vr;
+      function step(tt){life=(tt-start)/1000;vy+=.35;x+=vx;y+=vy;rot+=vr;
         c.style.transform="translate("+x+"px,"+y+"px) rotate("+rot+"deg)";c.style.opacity=String(Math.max(0,1-life/1.3));
         if(life<1.3)requestAnimationFrame(step);else c.remove();}
       requestAnimationFrame(step);
     })()}
   }
-  // floating gain number that rises from the deposit button (numbers are language-neutral)
   function floatGain(txt,neg){
     if(reduce)return;
     var r=$("#saveBtn").getBoundingClientRect();
@@ -842,7 +975,7 @@
     el.style.left=(r.left+r.width/2)+"px";el.style.top=r.top+"px";el.style.transform="translate(-50%,0)";
     document.body.appendChild(el);
     var start=performance.now();
-    function step(t){var p=Math.min(1,(t-start)/900);
+    function step(tt){var p=Math.min(1,(tt-start)/900);
       el.style.transform="translate(-50%,"+(-72*p)+"px)";el.style.opacity=String(1-p);
       if(p<1)requestAnimationFrame(step);else el.remove();}
     requestAnimationFrame(step);
@@ -865,24 +998,21 @@
     var spend=curKind==="spend";
     var note=$("#note").value.trim()||GENERIC[curKind];
     var ts=tsFromDateInput($("#entryDate").value);
-    var before=total(displayCur);
+    var beforeD=total(displayCur), beforeC=total("CNY");
     var entry={id:"e"+Date.now()+Math.random().toString(36).slice(2,6),amount:amt,cur:cur,kind:curKind,note:note,ts:ts,rates:snap()};
     entries.push(entry);
     try{localStorage.setItem(SEED,"1")}catch(e){}
     saveJSON(KEY,entries);
-    // past-dated entry → fetch that day's real exchange rate in the background and correct the snapshot
     applyHistoricalRates(entry);
-    var after=total(displayCur);
+    var afterD=total(displayCur), afterC=total("CNY");
     render(true);bumpBal();
     if(spend){
-      // spending feedback: subdued, no coins/celebration — the balance just ticks down
-      floatGain("−"+money(before-after,displayCur),true);
+      floatGain("−"+money(beforeD-afterD,displayCur),true);
     }else{
-      // non-text positive feedback: coins, balance count-up + bump, floating gain, progress bar advance
       burstCoins(14);
-      floatGain("+"+money(after-before,displayCur));
-      var mark=crossed(before,after);
-      if(mark){celebrate();if(!reduce)burstCoins(22);toast('🏆 '+money(mark,displayCur));}
+      floatGain("+"+money(afterD-beforeD,displayCur));
+      var mark=crossed(beforeC,afterC);
+      if(mark){celebrate();if(!reduce)burstCoins(22);toast('🏆 '+money(convert(mark,"CNY",displayCur,currentRates),displayCur));}
     }
     $("#amt").value="";$("#note").value="";resetEntryDate();
     chipsEl.querySelectorAll(".chip").forEach(function(c){c.classList.remove("on")});
@@ -896,7 +1026,7 @@
   var overlay=$("#overlay");
   function openSheet(){buildModeSeg();buildRates();updateRateUpdatedLabel();overlay.classList.add("show")}
   $("#btnRefreshRates").addEventListener("click",function(){
-    var btn=this,old=btn.textContent;btn.disabled=true;btn.textContent="更新中…";
+    var btn=this,old=btn.textContent;btn.disabled=true;btn.textContent=t("refreshing");
     refreshCurrentRates({toast:true,done:function(){btn.disabled=false;btn.textContent=old;updateRateUpdatedLabel();}});
   });
   function closeSheet(){overlay.classList.remove("show")}
@@ -907,9 +1037,7 @@
   function buildModeSeg(){
     var seg=$("#modeSeg");
     seg.querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-mode")===mode)});
-    $("#modeHint").textContent=mode==="historical"
-      ? "每笔按记账那天的真实汇率（欧洲央行数据，自动联网获取）折算——回头看就是「当时省了多少」。"
-      : "所有记录都按最新汇率折算——看的是「现在值多少」。";
+    $("#modeHint").textContent=mode==="historical"?t("modeHintHistorical"):t("modeHintCurrent");
   }
   $("#modeSeg").addEventListener("click",function(e){
     var b=e.target.closest("button");if(!b)return;
@@ -919,12 +1047,14 @@
 
   function buildRates(){
     var list=$("#rateList");list.innerHTML="";
-    CURRENCIES.forEach(function(c){
+    var baseSym=symOf("CNY");
+    L().order.forEach(function(code){
+      var c=CMAP[code];if(!c)return;
       var row=document.createElement("div");row.className="rate-row";
       var isBase=c.code==="CNY";
-      row.innerHTML='<div class="rc">'+c.code+' '+c.sym+'<small>'+c.name+'</small></div>'+
-        '<span class="eq">1 = ¥</span>'+
-        '<input type="text" inputmode="decimal" value="'+(isBase?"1":roundRate(currentRates[c.code]))+'"'+(isBase?" disabled":"")+' aria-label="'+c.code+'汇率">';
+      row.innerHTML='<div class="rc">'+c.code+' '+symOf(c.code)+'<small>'+nameOf(c.code)+'</small></div>'+
+        '<span class="eq">1 = '+baseSym+'</span>'+
+        '<input type="text" inputmode="decimal" value="'+(isBase?"1":roundRate(currentRates[c.code]))+'"'+(isBase?" disabled":"")+' aria-label="'+escapeHtml(L().rateAria(c.code))+'">';
       if(!isBase){
         var inp=row.querySelector("input");
         inp.addEventListener("change",function(){
@@ -940,7 +1070,7 @@
   // ---- export / import ----
   function snapshotData(){
     return {app:"savings-passbook",version:3,exportedAt:new Date().toISOString(),
-      displayCur:displayCur,mode:mode,rates:currentRates,entries:entries};
+      lang:lang,displayCur:displayCur,mode:mode,rates:currentRates,entries:entries};
   }
   $("#btnExport").addEventListener("click",function(){
     $("#importBox").classList.add("hidden");
@@ -950,19 +1080,19 @@
   });
   $("#btnCopy").addEventListener("click",function(){
     var ta=$("#exportText");ta.focus();ta.select();
-    var done=function(){toast("已复制备份 ✨")};
+    var done=function(){toast(t("copied"))};
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand("copy");done()}catch(e){toast("请长按手动复制")}});
-    }else{try{document.execCommand("copy");done()}catch(e){toast("请长按手动复制")}}
+      navigator.clipboard.writeText(ta.value).then(done,function(){try{document.execCommand("copy");done()}catch(e){toast(t("copyManual"))}});
+    }else{try{document.execCommand("copy");done()}catch(e){toast(t("copyManual"))}}
   });
   $("#btnDownload").addEventListener("click",function(){
     try{
       var blob=new Blob([JSON.stringify(snapshotData(),null,2)],{type:"application/json"});
       var url=URL.createObjectURL(blob),a=document.createElement("a");
-      a.href=url;a.download="省钱存折备份-"+new Date().toISOString().slice(0,10)+".json";
+      a.href=url;a.download=t("downloadName")+new Date().toISOString().slice(0,10)+".json";
       document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1500);
-      toast("已生成下载 📄");
-    }catch(e){toast("此环境不支持下载，请用「复制」备份")}
+      toast(t("downloaded"));
+    }catch(e){toast(t("downloadFail"))}
   });
   $("#btnImportOpen").addEventListener("click",function(){
     $("#exportBox").classList.add("hidden");
@@ -975,25 +1105,25 @@
   });
   $("#btnImportGo").addEventListener("click",function(){
     var raw=$("#importText").value.trim();
-    if(!raw){toast("请先粘贴或选择备份内容");return}
-    var data;try{data=JSON.parse(raw)}catch(e){toast("内容不是有效的备份 JSON");return}
+    if(!raw){toast(t("importPasteFirst"));return}
+    var data;try{data=JSON.parse(raw)}catch(e){toast(t("importInvalidJson"));return}
     var list=Array.isArray(data)?data:data.entries;
-    if(!Array.isArray(list)){toast("没找到记录数据");return}
-    if(!confirm("导入会覆盖当前这台设备上的全部记录，确定吗？"))return;
+    if(!Array.isArray(list)){toast(t("importNoData"));return}
+    if(!confirm(t("importConfirm")))return;
     entries=list.map(function(e){var k=e.kind==="spend"?"spend":"save";return {id:e.id||("e"+Date.now()+Math.random().toString(36).slice(2,6)),
       amount:+e.amount||0,cur:e.cur||"CNY",kind:k,note:e.note||GENERIC[k],ts:e.ts||Date.now(),rates:e.rates||null,ex:!!e.ex}});
     if(data.rates&&typeof data.rates==="object"){CURRENCIES.forEach(function(c){if(data.rates[c.code]!=null)currentRates[c.code]=+data.rates[c.code]});saveJSON(RKEY,currentRates)}
-    if(data.displayCur&&CMAP[data.displayCur]){displayCur=data.displayCur;saveJSON(DKEY,displayCur);$("#dispCur").value=displayCur;$("#amtSym").textContent=CMAP[displayCur].sym}
+    if(data.displayCur&&CMAP[data.displayCur]){displayCur=data.displayCur;saveJSON(DKEY,displayCur);$("#dispCur").value=displayCur;$("#amtSym").textContent=symOf($("#entryCur").value||displayCur)}
     if(data.mode==="historical"||data.mode==="current"){mode=data.mode;saveJSON(MKEY,mode)}
     saveJSON(KEY,entries);try{localStorage.setItem(SEED,"1")}catch(e){}
     buildModeSeg();buildRates();render();
     $("#importText").value="";closeSheet();
-    toast('已导入 <span class="em">'+entries.length+'</span> 笔记录 🎉');
+    toast(L().imported(entries.length));
   });
   $("#btnReset").addEventListener("click",function(){
-    if(!confirm("确定清空全部记录？此操作无法撤销。"))return;
+    if(!confirm(t("resetConfirm")))return;
     entries=[];saveJSON(KEY,entries);try{localStorage.setItem(SEED,"1")}catch(e){}
-    render();closeSheet();toast("已清空，随时可以重新开始 🌱");
+    render();closeSheet();toast(t("resetDone"));
   });
 
   // ================= Edit entry sheet =================
@@ -1008,14 +1138,16 @@
   function buildEditRates(e){
     var list=$("#editRateList");list.innerHTML="";
     var snapRates=e.rates||currentRates;
-    CURRENCIES.forEach(function(c){
-      if(c.code==="CNY")return;                     // base currency, always 1
+    var baseSym=symOf("CNY");
+    L().order.forEach(function(code){
+      if(code==="CNY")return;
+      var c=CMAP[code];if(!c)return;
       var val=(snapRates[c.code]!=null&&isFinite(snapRates[c.code]))?snapRates[c.code]:currentRates[c.code];
       val=roundRate(val);
       var row=document.createElement("div");row.className="rate-row";
-      row.innerHTML='<div class="rc">'+c.code+' '+c.sym+'<small>'+c.name+'</small></div>'+
-        '<span class="eq">1 = ¥</span>'+
-        '<input type="text" inputmode="decimal" data-code="'+c.code+'" value="'+val+'" aria-label="'+c.code+'当时汇率">';
+      row.innerHTML='<div class="rc">'+c.code+' '+symOf(c.code)+'<small>'+nameOf(c.code)+'</small></div>'+
+        '<span class="eq">1 = '+baseSym+'</span>'+
+        '<input type="text" inputmode="decimal" data-code="'+c.code+'" value="'+val+'" aria-label="'+escapeHtml(L().editRateAria(c.code))+'">';
       list.appendChild(row);
     });
   }
@@ -1028,26 +1160,26 @@
   }
   function fetchEditRatesForDate(){
     var ds=$("#editDate").value;if(!ds)return;
-    if(isTodayTs(tsFromDateInput(ds))){fillEditRateInputs(currentRates);setEditRateNote("今天：已填入当前汇率（可在设置里联网更新）",false);return}
-    setEditRateNote("正在联网获取 "+ds+" 的汇率…",false);
+    if(isTodayTs(tsFromDateInput(ds))){fillEditRateInputs(currentRates);setEditRateNote(t("editRateToday"),false);return}
+    setEditRateNote(L().editRateFetching(ds),false);
     var btn=$("#btnEditFetchRates");if(btn)btn.disabled=true;
     fetchRatesFor(ds,function(map,actual){
       if(btn)btn.disabled=false;
-      if(map){fillEditRateInputs(map);setEditRateNote("已填入 "+(actual||ds)+" 的欧洲央行汇率",false);}
-      else setEditRateNote("联网获取失败（"+(lastRateError||"未知")+"），可手动填写这天的汇率",true);
+      if(map){fillEditRateInputs(map);setEditRateNote(L().editRateFetched(actual||ds),false);}
+      else setEditRateNote(L().editRateFail(lastRateError||t("errUnknown")),true);
     });
   }
   function openEdit(id){
     var e=findEntry(id);if(!e)return;
     editingId=id;
-    var t=toDateInput(Date.now());
-    $("#editDate").max=t;
+    var tt=toDateInput(Date.now());
+    $("#editDate").max=tt;
     $("#editDate").value=toDateInput(e.ts);
     $("#editAmt").value=(+e.amount||0);
     setEditKind(e.kind==="spend"?"spend":"save");
     fillCurSelect($("#editCur"),e.cur||"CNY");
-    $("#editSym").textContent=CMAP[e.cur||"CNY"].sym;
-    $("#editNote").value=(e.note&&e.note!=="省钱"&&e.note!=="花费")?e.note:"";
+    $("#editSym").textContent=symOf(e.cur||"CNY");
+    $("#editNote").value=(e.note&&!GENERIC_ALL[e.note])?e.note:"";
     buildEditRates(e);setEditRateNote("");
     editOverlay.classList.add("show");
   }
@@ -1056,11 +1188,11 @@
   function closeEdit(){editOverlay.classList.remove("show");editingId=null}
   $("#closeEdit").addEventListener("click",closeEdit);
   editOverlay.addEventListener("click",function(e){if(e.target===editOverlay)closeEdit()});
-  $("#editCur").addEventListener("change",function(){$("#editSym").textContent=CMAP[this.value].sym});
+  $("#editCur").addEventListener("change",function(){$("#editSym").textContent=symOf(this.value)});
   $("#editDelete").addEventListener("click",function(){
     if(!editingId)return;
-    if(!confirm("确定删除这笔？此操作无法撤销。"))return;
-    var id=editingId;closeEdit();removeEntry(id);toast("已删除这笔 🗑️");
+    if(!confirm(t("deleteConfirm")))return;
+    var id=editingId;closeEdit();removeEntry(id);toast(t("deletedOne"));
   });
   $("#editSave").addEventListener("click",function(){
     if(!editingId)return;
@@ -1079,18 +1211,44 @@
       newRates[code]=(v&&v>0)?v:rateOf(e.rates||currentRates,code);
     });
     e.rates=newRates;
-    e.ex=false;                                   // edited by user → no longer a sample
+    e.ex=false;
     try{localStorage.setItem(SEED,"1")}catch(_){}
     saveJSON(KEY,entries);
-    closeEdit();render();toast("已更新这笔 ✨");
+    closeEdit();render();toast(t("updatedOne"));
   });
   $("#editAmt").addEventListener("input",function(){
     var v=this.value.replace(/[^\d.]/g,""),p=v.split(".");if(p.length>2)v=p[0]+"."+p.slice(1).join("");this.value=v;
   });
 
+  // ================= language switch =================
+  function applyLang(){
+    document.documentElement.lang = lang==="ja"?"ja":"zh-CN";
+    document.title=t("docTitle");
+    document.querySelectorAll("[data-i18n]").forEach(function(el){el.textContent=t(el.getAttribute("data-i18n"))});
+    document.querySelectorAll("[data-i18n-html]").forEach(function(el){el.innerHTML=t(el.getAttribute("data-i18n-html"))});
+    document.querySelectorAll("[data-i18n-ph]").forEach(function(el){el.setAttribute("placeholder",t(el.getAttribute("data-i18n-ph")))});
+    document.querySelectorAll("[data-i18n-aria]").forEach(function(el){el.setAttribute("aria-label",t(el.getAttribute("data-i18n-aria")))});
+    document.querySelectorAll("[data-i18n-title]").forEach(function(el){el.setAttribute("title",t(el.getAttribute("data-i18n-title")))});
+    $("#langBtn").textContent = lang==="ja"?"日":"中";
+    // refresh language-dependent data + selects
+    presets=L().presets; spendPresets=L().spendPresets; GENERIC=L().generic;
+    var entrySel=$("#entryCur").value||displayCur;
+    fillCurSelect($("#dispCur"),displayCur);
+    fillCurSelect($("#entryCur"),entrySel);
+    $("#amtSym").textContent=symOf($("#entryCur").value||displayCur);
+    updateFormKind();
+    if(overlay.classList.contains("show")){buildModeSeg();buildRates();updateRateUpdatedLabel()}
+    render();
+  }
+  $("#langBtn").addEventListener("click",function(){
+    lang=lang==="ja"?"zh":"ja";
+    try{localStorage.setItem(LKEY,JSON.stringify(lang))}catch(e){}
+    applyLang();
+  });
+
   // ---- go ----
-  render();
-  // keep the "current rate" mode honest: pull fresh ECB rates on load when they're stale (>6h)
+  resetEntryDate();
+  applyLang();   // localizes all static + dynamic text and does the first render
   if(Date.now()-ratesUpdatedAt>6*3600*1000)refreshCurrentRates({});
 })();
 </script>
