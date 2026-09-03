@@ -224,6 +224,24 @@
   .io-hint{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
   .hidden{display:none}
 
+  /* ---- CSV import mapping + preview ---- */
+  #csvPanel{margin-top:12px;border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--card)}
+  .csv-map{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .csv-map label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--ink-soft);font-family:var(--mono);letter-spacing:.5px}
+  .csv-map select{appearance:none;-webkit-appearance:none;border:1px solid var(--line);border-radius:10px;background:var(--paper);
+    color:var(--ink);font-family:var(--sans);font-size:13.5px;padding:9px 26px 9px 10px;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%235c6b64' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 9px center;}
+  .csv-map select:focus{outline:none;border-color:var(--mint);box-shadow:0 0 0 3px var(--mint-soft)}
+  .csv-preview{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:210px}
+  .csv-preview table{border-collapse:collapse;width:100%;font-size:12px;font-family:var(--mono)}
+  .csv-preview th,.csv-preview td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .csv-preview th{position:sticky;top:0;background:var(--card);color:var(--ink-soft);font-weight:700;letter-spacing:.5px}
+  .csv-preview td{color:var(--ink)}
+  .csv-preview .amt-save{color:var(--mint);font-weight:700}
+  .csv-preview .amt-spend{color:var(--danger);font-weight:700}
+  @media (max-width:420px){.csv-map{grid-template-columns:1fr}}
+
   /* ---- Date field + edit inputs ---- */
   .date-field{margin-top:10px;display:flex;align-items:center;gap:10px}
   .date-field .date-lab{font-size:13px;color:var(--ink-soft);font-family:var(--sans);flex:none}
@@ -371,6 +389,36 @@
         </div>
         <input type="file" id="importFile" accept="application/json,.json,text/plain" class="hidden">
         <div class="io-hint">导入会<strong>覆盖</strong>当前这台设备上的全部记录，请确认后再操作。</div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="lab">从记账软件导入 CSV · 追加到现有记录</div>
+      <div class="data-btns">
+        <button class="btn" id="btnCsvPick" type="button">📥 选择 CSV 文件</button>
+      </div>
+      <input type="file" id="csvFile" accept=".csv,text/csv,text/plain" class="hidden">
+      <div class="io-hint">支持日元记账 App 导出的 CSV（如「おカネレコ」等）。导入会<strong>追加</strong>到现有记录，不覆盖。可先选文件，再核对列的对应关系。</div>
+
+      <div id="csvPanel" class="hidden">
+        <div class="csv-map">
+          <label>金额列<select id="csvColAmount"></select></label>
+          <label>日期列<select id="csvColDate"></select></label>
+          <label>备注列<select id="csvColNote"></select></label>
+          <label>分类列<select id="csvColCat"></select></label>
+          <label>币种<select id="csvCur"></select></label>
+          <label>记法<select id="csvSign">
+            <option value="signed">按正负（负=花费，正=省下）</option>
+            <option value="spend">全部记为花费</option>
+            <option value="save">全部记为省下</option>
+          </select></label>
+        </div>
+        <div class="csv-preview" id="csvPreview"></div>
+        <div class="data-btns" style="margin-top:10px">
+          <button class="btn primary" id="csvImportGo" type="button">追加导入</button>
+          <button class="btn" id="csvCancel" type="button">取消</button>
+        </div>
+        <div class="io-hint" id="csvHint"></div>
       </div>
     </div>
 
@@ -1070,6 +1118,157 @@
   });
   $("#editAmt").addEventListener("input",function(){
     var v=this.value.replace(/[^\d.]/g,""),p=v.split(".");if(p.length>2)v=p[0]+"."+p.slice(1).join("");this.value=v;
+  });
+
+  // ================= CSV import (from a JPY budgeting app) =================
+  var csvHeaders=[],csvRows=[];
+  fillCurSelect($("#csvCur"),"JPY");
+
+  // --- decode bytes: prefer UTF-8, fall back to Shift_JIS (common in JP apps) ---
+  function decodeCsvBytes(buf){
+    var bytes=new Uint8Array(buf);
+    try{return new TextDecoder("utf-8",{fatal:true}).decode(bytes)}catch(e){}
+    try{return new TextDecoder("shift_jis").decode(bytes)}catch(e){}
+    try{return new TextDecoder("utf-8").decode(bytes)}catch(e){return ""}
+  }
+  // --- RFC-4180-ish CSV parser (handles quotes, embedded commas/newlines, CRLF) ---
+  function parseCSV(text){
+    var rows=[],row=[],field="",i=0,n=text.length,inQ=false;
+    while(i<n){
+      var ch=text[i];
+      if(inQ){
+        if(ch==='"'){if(text[i+1]==='"'){field+='"';i+=2;continue}inQ=false;i++;continue}
+        field+=ch;i++;continue;
+      }
+      if(ch==='"'){inQ=true;i++;continue}
+      if(ch===","){row.push(field);field="";i++;continue}
+      if(ch==="\r"){if(text[i+1]==="\n")i++;row.push(field);rows.push(row);row=[];field="";i++;continue}
+      if(ch==="\n"){row.push(field);rows.push(row);row=[];field="";i++;continue}
+      field+=ch;i++;
+    }
+    if(field!==""||row.length){row.push(field);rows.push(row)}
+    return rows.filter(function(r){return r.length&&!(r.length===1&&r[0].trim()==="")});
+  }
+  function looksNumeric(s){var t=String(s==null?"":s).replace(/[,，\s¥￥$]/g,"").replace(/[−–—]/g,"-");return t!==""&&/^-?\d+(\.\d+)?$/.test(t)}
+  function parseCsvAmount(s){
+    if(s==null)return NaN;
+    var t=String(s).replace(/[,，\s¥￥$]/g,"").replace(/[−–—]/g,"-").replace(/[０-９]/g,function(d){return String.fromCharCode(d.charCodeAt(0)-0xFEE0)});
+    var v=parseFloat(t);return isFinite(v)?v:NaN;
+  }
+  function parseCsvDate(s){
+    if(!s)return null;
+    var m=String(s).trim().match(/^(\d{4})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})/);
+    if(!m)return null;
+    var y=+m[1],mo=+m[2]-1,d=+m[3];
+    if(mo<0||mo>11||d<1||d>31)return null;
+    return new Date(y,mo,d,12,0,0,0).getTime();
+  }
+  function csvDateShort(ts){var d=new Date(ts);return d.getFullYear()+"/"+pad2(d.getMonth()+1)+"/"+pad2(d.getDate())}
+  function buildCsvNote(memo,cat,kind){
+    memo=(memo||"").trim();cat=(cat||"").trim();
+    if(memo&&cat)return (memo+" · "+cat).slice(0,60);
+    var n=memo||cat;return n?n.slice(0,60):GENERIC[kind];
+  }
+  function argmax(arr){var bi=0,bv=-Infinity;for(var i=0;i<arr.length;i++)if(arr[i]>bv){bv=arr[i];bi=i}return bi}
+  function rowLooksLikeData(r){return r.some(function(c){return parseCsvDate(c)!=null})&&r.some(looksNumeric)}
+  function detectCols(names,rows){
+    var m={amount:-1,date:-1,note:-1,cat:-1};
+    var kw={
+      amount:["金額","金额","amount","支出","出金","price","値段","金"],
+      date:["日付","日期","date","年月日","日時","日"],
+      note:["メモ","memo","备注","備考","摘要","内容","note","description","品目","项目","項目","名称"],
+      cat:["カテゴリ","分类","分類","category","費目","大項目","中項目","種類","ジャンル"]
+    };
+    names.forEach(function(nm,i){
+      var lo=(nm||"").toLowerCase();
+      for(var key in kw){if(m[key]<0&&kw[key].some(function(k){return (nm||"").indexOf(k)>=0||lo.indexOf(k.toLowerCase())>=0}))m[key]=i}
+    });
+    if(m.date<0||m.amount<0){
+      var nCols=names.length,ds=[],as=[];
+      for(var c=0;c<nCols;c++){ds[c]=0;as[c]=0}
+      rows.slice(0,60).forEach(function(r){for(var c=0;c<nCols;c++){if(parseCsvDate(r[c])!=null)ds[c]++;if(looksNumeric(r[c]))as[c]++}});
+      if(m.date<0)m.date=argmax(ds);
+      if(m.amount<0){for(var c2=0;c2<nCols;c2++)if(c2===m.date)as[c2]=-1;m.amount=argmax(as)}
+    }
+    return m;
+  }
+  function fillColSelect(sel,names,selected,allowNone){
+    sel.innerHTML="";
+    if(allowNone){var o0=document.createElement("option");o0.value="-1";o0.textContent="（无）";sel.appendChild(o0)}
+    names.forEach(function(nm,i){var o=document.createElement("option");o.value=String(i);o.textContent=(i+1)+" · "+(nm||"");if(i===selected)o.selected=true;sel.appendChild(o)});
+    if(allowNone&&selected<0)sel.value="-1";
+  }
+  function cvVal(id){return $(id).value}
+  function eachCsvRow(cb){
+    var ai=+cvVal("#csvColAmount"),di=+cvVal("#csvColDate"),ni=+cvVal("#csvColNote"),ci=+cvVal("#csvColCat"),sign=cvVal("#csvSign");
+    csvRows.forEach(function(r){
+      var raw=parseCsvAmount(r[ai]),ts=parseCsvDate(r[di]);
+      if(isNaN(raw)||raw===0||ts==null){cb(null);return}
+      var kind=sign==="spend"?"spend":sign==="save"?"save":(raw<0?"spend":"save");
+      cb({amt:Math.abs(raw),ts:ts,kind:kind,note:buildCsvNote(ni>=0?r[ni]:"",ci>=0?r[ci]:"",kind)});
+    });
+  }
+  function renderCsvPreview(){
+    var cur=cvVal("#csvCur"),added=0,skip=0,html="";
+    eachCsvRow(function(o){
+      if(!o){skip++;return}
+      added++;
+      if(added<=6){
+        html+='<tr><td>'+escapeHtml(csvDateShort(o.ts))+'</td><td class="'+(o.kind==="spend"?"amt-spend":"amt-save")+'">'+(o.kind==="spend"?"−":"+")+escapeHtml(money(o.amt,cur))+'</td><td>'+escapeHtml(o.note)+'</td></tr>';
+      }
+    });
+    $("#csvPreview").innerHTML='<table><thead><tr><th>日期</th><th>金额</th><th>备注</th></tr></thead><tbody>'+html+'</tbody></table>';
+    $("#csvHint").innerHTML='共 <strong>'+added+'</strong> 行可导入'+(skip?'，另有 '+skip+' 行日期/金额无效将跳过':'')+'。导入的记录以 '+cvVal("#csvCur")+' 记，可稍后在流水里逐笔编辑。';
+  }
+  function resetCsv(){csvHeaders=[];csvRows=[];$("#csvPanel").classList.add("hidden");$("#csvFile").value="";$("#csvPreview").innerHTML="";$("#csvHint").textContent=""}
+  function setupCsv(text){
+    var rows=parseCSV(text);
+    if(!rows.length){toast("没在这个 CSV 里找到内容");return}
+    var hasHeader=false;
+    var kwAll=["金額","金额","日付","日期","メモ","カテゴリ","amount","date","memo","category"];
+    if(kwAll.some(function(k){return rows[0].some(function(c){return (c||"").toLowerCase().indexOf(k.toLowerCase())>=0})}))hasHeader=true;
+    else if(!rowLooksLikeData(rows[0]))hasHeader=true;
+    var nCols=rows.reduce(function(a,r){return Math.max(a,r.length)},0);
+    csvHeaders=hasHeader?rows[0].slice():[];
+    for(var i=csvHeaders.length;i<nCols;i++)csvHeaders[i]="列"+(i+1);
+    csvRows=(hasHeader?rows.slice(1):rows).map(function(r){var rr=r.slice();for(var j=rr.length;j<nCols;j++)rr[j]="";return rr});
+    if(!csvRows.length){toast("这个 CSV 只有表头，没有数据行");return}
+    var det=detectCols(csvHeaders,csvRows);
+    fillColSelect($("#csvColAmount"),csvHeaders,det.amount,false);
+    fillColSelect($("#csvColDate"),csvHeaders,det.date,false);
+    fillColSelect($("#csvColNote"),csvHeaders,det.note,true);
+    fillColSelect($("#csvColCat"),csvHeaders,det.cat,true);
+    // negatives present → default to signed; otherwise assume all spending (typical for expense exports)
+    var hasNeg=csvRows.some(function(r){var v=parseCsvAmount(r[det.amount]);return !isNaN(v)&&v<0});
+    $("#csvSign").value=hasNeg?"signed":"spend";
+    $("#csvPanel").classList.remove("hidden");
+    renderCsvPreview();
+  }
+  $("#btnCsvPick").addEventListener("click",function(){$("#csvFile").click()});
+  $("#csvFile").addEventListener("change",function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var r=new FileReader();
+    r.onload=function(){try{setupCsv(decodeCsvBytes(r.result))}catch(e){toast("读取 CSV 失败")}};
+    r.onerror=function(){toast("读取文件失败")};
+    r.readAsArrayBuffer(f);
+  });
+  ["#csvColAmount","#csvColDate","#csvColNote","#csvColCat","#csvCur","#csvSign"].forEach(function(id){
+    $(id).addEventListener("change",renderCsvPreview);
+  });
+  $("#csvCancel").addEventListener("click",resetCsv);
+  $("#csvImportGo").addEventListener("click",function(){
+    var added=0,batch=[];
+    eachCsvRow(function(o){if(!o)return;added++;
+      batch.push({id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,7)+added,amount:o.amt,cur:cvVal("#csvCur"),kind:o.kind,note:o.note,ts:o.ts,rates:snap()});
+    });
+    if(!added){toast("没有可导入的行");return}
+    if(!confirm("将向现有记录追加 "+added+" 笔（不覆盖），确定吗？"))return;
+    entries=entries.filter(function(e){return !e.ex});   // clear samples on first real import
+    entries=entries.concat(batch);
+    try{localStorage.setItem(SEED,"1")}catch(e){}
+    saveJSON(KEY,entries);
+    render();resetCsv();closeSheet();
+    toast('已追加导入 <span class="em">'+added+'</span> 笔 🎉');
   });
 
   // ---- go ----
