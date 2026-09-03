@@ -503,38 +503,52 @@
   function total(to){return entries.reduce(function(a,e){return a+signedValue(e,to)},0)}
 
   // ---- live exchange rates (Frankfurter / European Central Bank, keyless, historical-capable) ----
-  var API_BASE="https://api.frankfurter.app/";
+  // try the current v1 host first, then the legacy host as fallback
+  var API_ENDPOINTS=["https://api.frankfurter.dev/v1/","https://api.frankfurter.app/"];
   // currencies our table shares with the ECB dataset (CNY is the base, always 1)
   var API_CODES=["USD","HKD","JPY"];
-  // fetch one day's rates in our "CNY per 1 unit" semantics. dateStr: "latest" or "YYYY-MM-DD".
-  // cb(ratesMap|null, actualDate|null) — ratesMap includes CNY:1 and every supported code we got back.
-  function fetchRatesFor(dateStr,cb){
-    // historical dates are immutable → safe to cache; "latest" must always hit the network
-    if(dateStr!=="latest"){var cached=rateCache[dateStr];if(cached&&cached.rates){cb(cloneRates(cached.rates),cached.date||null);return}}
-    var url=API_BASE+encodeURIComponent(dateStr)+"?base=CNY&symbols="+API_CODES.join(",");
+  var lastRateError="";                 // human-readable reason of the most recent failed fetch (for UI)
+  // one GET → cb(ratesMap|null, actualDate|null, errText)
+  function xhrGetRates(url,cb){
     var done=false;
-    function finish(map,date){if(done)return;done=true;cb(map,date)}
+    function finish(map,date,err){if(done)return;done=true;cb(map,date,err)}
     try{
       var xhr=new XMLHttpRequest();
-      xhr.open("GET",url,true);xhr.timeout=9000;
+      xhr.open("GET",url,true);xhr.timeout=8000;
       xhr.onreadystatechange=function(){
         if(xhr.readyState!==4||done)return;
         if(xhr.status>=200&&xhr.status<300){
           try{
             var j=JSON.parse(xhr.responseText),out={CNY:1},got=false;
             if(j&&j.rates)for(var code in j.rates){var per=+j.rates[code];if(per>0&&isFinite(per)){out[code]=1/per;got=true}}
-            if(got){
-              var d=j.date||(dateStr!=="latest"?dateStr:null);
-              if(dateStr!=="latest"){rateCache[dateStr]={rates:cloneRates(out),date:d};trimRateCache();saveJSON(RCKEY,rateCache);}
-              finish(cloneRates(out),d);
-            }else finish(null,null);
-          }catch(e){finish(null,null)}
-        }else finish(null,null);
+            if(got)finish(out,j.date||null,"");else finish(null,null,"返回数据缺少汇率");
+          }catch(e){finish(null,null,"解析失败")}
+        }else finish(null,null,"HTTP "+(xhr.status||0));
       };
-      xhr.ontimeout=function(){finish(null,null)};
-      xhr.onerror=function(){finish(null,null)};
+      xhr.ontimeout=function(){finish(null,null,"超时")};
+      xhr.onerror=function(){finish(null,null,"网络/跨域错误")};
       xhr.send();
-    }catch(e){finish(null,null)}
+    }catch(e){finish(null,null,"请求异常")}
+  }
+  // fetch one day's rates in our "CNY per 1 unit" semantics, trying endpoints in order.
+  // dateStr: "latest" or "YYYY-MM-DD". cb(ratesMap|null, actualDate|null)
+  function fetchRatesFor(dateStr,cb){
+    // historical dates are immutable → safe to cache; "latest" must always hit the network
+    if(dateStr!=="latest"){var cached=rateCache[dateStr];if(cached&&cached.rates){cb(cloneRates(cached.rates),cached.date||null);return}}
+    var qs="?base=CNY&symbols="+API_CODES.join(","),i=0;
+    function tryNext(){
+      if(i>=API_ENDPOINTS.length){cb(null,null);return}
+      var url=API_ENDPOINTS[i++]+encodeURIComponent(dateStr)+qs;
+      xhrGetRates(url,function(out,date,err){
+        if(out){
+          lastRateError="";
+          var d=date||(dateStr!=="latest"?dateStr:null);
+          if(dateStr!=="latest"){rateCache[dateStr]={rates:cloneRates(out),date:d};trimRateCache();saveJSON(RCKEY,rateCache);}
+          cb(cloneRates(out),d);
+        }else{lastRateError=err||"失败";tryNext();}
+      });
+    }
+    tryNext();
   }
   function cloneRates(m){var o={};for(var k in m)o[k]=m[k];return o}
   function trimRateCache(){ // keep the cache small: newest ~60 historical dates
@@ -554,7 +568,7 @@
         if($("#overlay").classList.contains("show")){buildRates();updateRateUpdatedLabel()}
         render();
         if(opts.toast)toast("汇率已联网更新 🌐");
-      }else if(opts.toast){toast("联网更新失败，仍用当前汇率");}
+      }else if(opts.toast){toast("联网更新失败（"+(lastRateError||"未知")+"），仍用当前汇率");}
       if(opts.done)opts.done(!!map);
     });
   }
@@ -1018,7 +1032,7 @@
     fetchRatesFor(ds,function(map,actual){
       if(btn)btn.disabled=false;
       if(map){fillEditRateInputs(map);setEditRateNote("已填入 "+(actual||ds)+" 的欧洲央行汇率",false);}
-      else setEditRateNote("联网获取失败，可手动填写这天的汇率",true);
+      else setEditRateNote("联网获取失败（"+(lastRateError||"未知")+"），可手动填写这天的汇率",true);
     });
   }
   function openEdit(id){
