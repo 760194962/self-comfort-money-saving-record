@@ -289,9 +289,9 @@
   </section>
 
   <form class="deposit" id="form" autocomplete="off">
-    <div class="kind-seg" id="kindSeg" role="tablist" data-i18n-aria="kindSegAria" aria-label="记这笔是省下还是花费">
+    <div class="kind-seg" id="kindSeg" role="tablist" data-i18n-aria="kindSegAria" aria-label="记这笔是省下还是亏钱">
       <button type="button" data-kind="save" class="on" role="tab" data-i18n="kindSave">🪙 省了一笔</button>
-      <button type="button" data-kind="spend" role="tab" data-i18n="kindSpend">🛒 花了一笔</button>
+      <button type="button" data-kind="spend" role="tab" data-i18n="kindSpend">🛒 亏了一笔</button>
     </div>
     <h2 id="formTitle">刚刚又省了一笔？存进来 👇</h2>
     <div class="amount-field">
@@ -397,7 +397,7 @@
       <div class="lab" data-i18n="typeLabel">类型</div>
       <div class="kind-seg" id="editKindSeg">
         <button type="button" data-kind="save" data-i18n="editKindSave">🪙 省下</button>
-        <button type="button" data-kind="spend" data-i18n="editKindSpend">🛒 花费</button>
+        <button type="button" data-kind="spend" data-i18n="editKindSpend">🛒 亏钱</button>
       </div>
     </div>
 
@@ -463,15 +463,15 @@
       themeTitle:"切换深浅色", gearTitle:"设置 · 汇率 · 数据", gearAria:"设置",
       balLabel:"当前存款余额", dispCurAria:"显示币种",
       statCount:"笔记录", statMonth:"本月净省", statBest:"单笔最高",
-      kindSegAria:"记这笔是省下还是花费", kindSave:"🪙 省了一笔", kindSpend:"🛒 花了一笔",
-      formTitleSave:"刚刚又省了一笔？存进来 👇", formTitleSpend:"刚花了一笔？记下来，从存款里扣 👇",
+      kindSegAria:"记这笔是省下还是亏钱", kindSave:"🪙 省了一笔", kindSpend:"🛒 亏了一笔",
+      formTitleSave:"刚刚又省了一笔？存进来 👇", formTitleSpend:"刚亏了一笔？记下来，从存款里扣 👇",
       amtAria:"省下的金额", entryCurAria:"币种", dateLab:"日期", entryDateAria:"省钱日期", noteAria:"备注",
-      notePlaceholderSave:"省在哪儿了？（比如：机票打折）", notePlaceholderSpend:"花在哪儿了？（比如：午饭 便当）",
-      saveBtnSave:"存进省钱存款", saveBtnSpend:"记下这笔花费",
+      notePlaceholderSave:"省在哪儿了？（比如：机票打折）", notePlaceholderSpend:"亏在哪儿了？（比如：午饭 便当）",
+      saveBtnSave:"存进省钱存款", saveBtnSpend:"记下这笔亏钱",
       ledgerTitle:"省钱流水",
       ledgerHint:function(n){return "点一笔可编辑 · 共 "+n+" 笔"},
       emptyBig:"还没有记录～", emptySub:"省下的第一笔钱，就从上面存进来吧。",
-      rowSaveFallback:"省钱", rowSpendFallback:"花费", tagEx:"示例", delTitle:"删除这笔", delAria:"删除",
+      rowSaveFallback:"省钱", rowSpendFallback:"亏钱", tagEx:"示例", delTitle:"删除这笔", delAria:"删除",
       clearExamples:"清空示例，开始记我自己的",
       tip:'数据只存在这台设备的浏览器里，不上传任何地方。<br>想换设备或备份？用下方 ⚙ 里的「导出 / 导入」。亏钱的时候翻出来看看你有多富 💚',
       modeNote:function(hist,cur){return (hist?"按记录当时的汇率折算":"按当前汇率折算")+" · 显示为 "+cur},
@@ -496,7 +496,7 @@
       importConfirm:"导入会覆盖当前这台设备上的全部记录，确定吗？",
       imported:function(n){return '已导入 <span class="em">'+n+'</span> 笔记录 🎉'},
       resetConfirm:"确定清空全部记录？此操作无法撤销。", resetDone:"已清空，随时可以重新开始 🌱",
-      editSheetAria:"编辑记录", editTitle:"编辑这笔", typeLabel:"类型", editKindSave:"🪙 省下", editKindSpend:"🛒 花费",
+      editSheetAria:"编辑记录", editTitle:"编辑这笔", typeLabel:"类型", editKindSave:"🪙 省下", editKindSpend:"🛒 亏钱",
       editDateAria:"日期", amtCurLabel:"金额与币种", editAmtAria:"金额", editCurAria:"币种",
       noteLabel:"备注", editNotePlaceholder:"省在哪儿了？", editNoteAria:"备注",
       editRateLabel:"这一天的汇率", btnEditFetchRates:"↻ 按这天联网取汇率",
@@ -516,7 +516,7 @@
       curName:{CNY:"人民币",USD:"美元",HKD:"港币",JPY:"日元"},
       sym:{CNY:"¥",USD:"$",HKD:"HK$",JPY:"JP¥"},
       order:["CNY","USD","HKD","JPY"],
-      generic:{save:"省钱",spend:"花费"},
+      generic:{save:"省钱",spend:"亏钱"},
       presets:["机票","打折","优惠券","会员价","二手","忍住没买","比价","返现","团购","海淘"],
       spendPresets:["餐饮","日用品","交通","购物","娱乐","咖啡","房租","水电","通讯","医疗"],
       iconSave:{"机票":"✈️","打折":"🏷️","优惠券":"🎟️","优惠码":"🎟️","会员":"⭐","二手":"♻️","忍住":"🛑","比价":"⚖️","返现":"💸","团购":"👥","自己做":"🍳","咖啡":"☕","海淘":"📦"},
@@ -602,6 +602,7 @@
   };
   // any-language generic note words (so switching language still hides placeholder notes)
   var GENERIC_ALL={};["zh","ja"].forEach(function(L){var g=I18N[L].generic;GENERIC_ALL[g.save]=1;GENERIC_ALL[g.spend]=1});
+  ["花费","蚀钱","悭钱"].forEach(function(n){GENERIC_ALL[n]=1}); // older zh fallback notes
 
   // pick language: stored preference → browser hint → Chinese default
   var lang=loadJSON(LKEY,null);
