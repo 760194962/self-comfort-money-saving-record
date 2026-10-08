@@ -289,7 +289,7 @@
   </section>
 
   <form class="deposit" id="form" autocomplete="off">
-    <div class="kind-seg" id="kindSeg" role="tablist" data-i18n-aria="kindSegAria" aria-label="记这笔是省下还是蚀钱">
+    <div class="kind-seg" id="kindSeg" role="tablist" data-i18n-aria="kindSegAria" aria-label="记低呢笔系省咗定系蚀咗">
       <button type="button" data-kind="save" class="on" role="tab" data-i18n="kindSave">🪙 省了一笔</button>
       <button type="button" data-kind="spend" role="tab" data-i18n="kindSpend">🛒 蚀咗一笔</button>
     </div>
@@ -463,11 +463,11 @@
       themeTitle:"切换深浅色", gearTitle:"设置 · 汇率 · 数据", gearAria:"设置",
       balLabel:"当前存款余额", dispCurAria:"显示币种",
       statCount:"笔记录", statMonth:"本月净省", statBest:"单笔最高",
-      kindSegAria:"记这笔是省下还是蚀钱", kindSave:"🪙 省了一笔", kindSpend:"🛒 蚀咗一笔",
+      kindSegAria:"记低呢笔系省咗定系蚀咗", kindSave:"🪙 省了一笔", kindSpend:"🛒 蚀咗一笔",
       formTitleSave:"刚刚又省了一笔？存进来 👇", formTitleSpend:"啱啱蚀咗一笔？记低佢，喺存款度扣 👇",
       amtAria:"省下的金额", entryCurAria:"币种", dateLab:"日期", entryDateAria:"省钱日期", noteAria:"备注",
-      notePlaceholderSave:"省在哪儿了？（比如：机票打折）", notePlaceholderSpend:"蚀喺边度？（比如：午饭 便当）",
-      saveBtnSave:"存进省钱存款", saveBtnSpend:"记下呢笔蚀钱",
+      notePlaceholderSave:"省在哪儿了？（比如：机票打折）", notePlaceholderSpend:"蚀喺边度？（例如：食晏 饭盒）",
+      saveBtnSave:"存进省钱存款", saveBtnSpend:"记低呢笔蚀钱",
       ledgerTitle:"省钱流水",
       ledgerHint:function(n){return "点一笔可编辑 · 共 "+n+" 笔"},
       emptyBig:"还没有记录～", emptySub:"省下的第一笔钱，就从上面存进来吧。",
@@ -498,7 +498,7 @@
       resetConfirm:"确定清空全部记录？此操作无法撤销。", resetDone:"已清空，随时可以重新开始 🌱",
       editSheetAria:"编辑记录", editTitle:"编辑这笔", typeLabel:"类型", editKindSave:"🪙 省下", editKindSpend:"🛒 蚀钱",
       editDateAria:"日期", amtCurLabel:"金额与币种", editAmtAria:"金额", editCurAria:"币种",
-      noteLabel:"备注", editNotePlaceholder:"省在哪儿了？", editNoteAria:"备注",
+      noteLabel:"备注", editNotePlaceholder:"省在哪儿了？", editNotePlaceholderSpend:"蚀喺边度？", editNoteAria:"备注",
       editRateLabel:"这一天的汇率", btnEditFetchRates:"↻ 按这天联网取汇率",
       editRateHint:"改日期时会自动联网取当天的欧洲央行汇率并填入；「按当时汇率」模式下这笔就按这组数折算。取不到（周末/节假日/离线）时可手动填。",
       editSaveBtn:"保存修改", editDeleteBtn:"删除这笔",
@@ -520,7 +520,7 @@
       presets:["机票","打折","优惠券","会员价","二手","忍住没买","比价","返现","团购","海淘"],
       spendPresets:["餐饮","日用品","交通","购物","娱乐","咖啡","房租","水电","通讯","医疗"],
       iconSave:{"机票":"✈️","打折":"🏷️","优惠券":"🎟️","优惠码":"🎟️","会员":"⭐","二手":"♻️","忍住":"🛑","比价":"⚖️","返现":"💸","团购":"👥","自己做":"🍳","咖啡":"☕","海淘":"📦"},
-      iconSpend:{"餐饮":"🍜","吃饭":"🍜","拉面":"🍜","便当":"🍱","超市":"🛒","日用":"🧴","购物":"🛍️","衣":"👕","交通":"🚃","电车":"🚃","打车":"🚕","加油":"⛽","房租":"🏠","水":"💧","电":"💡","燃气":"🔥","通讯":"📱","手机":"📱","医疗":"💊","药":"💊","娱乐":"🎮","游戏":"🎮","书":"📚","酒":"🍺","旅行":"🧳","礼":"🎁"},
+      iconSpend:{"餐饮":"🍜","吃饭":"🍜","拉面":"🍜","便当":"🍱","食晏":"🍜","饭盒":"🍱","超市":"🛒","日用":"🧴","购物":"🛍️","衣":"👕","交通":"🚃","电车":"🚃","打车":"🚕","加油":"⛽","房租":"🏠","水":"💧","电":"💡","燃气":"🔥","通讯":"📱","手机":"📱","医疗":"💊","药":"💊","娱乐":"🎮","游戏":"🎮","书":"📚","酒":"🍺","旅行":"🧳","礼":"🎁"},
       seeds:function(now){return [
         {id:"ex1",amount:250,cur:"CNY",kind:"save",note:"机票提前订，省下差价",ts:now-86400000*2,ex:true},
         {id:"ex2",amount:12,cur:"USD",kind:"save",note:"海淘用了优惠码",ts:now-86400000*5,ex:true},
@@ -569,7 +569,7 @@
       resetConfirm:"全ての記録を削除しますか？この操作は取り消せません。", resetDone:"削除しました。いつでも再スタートできます 🌱",
       editSheetAria:"記録を編集", editTitle:"この記録を編集", typeLabel:"種類", editKindSave:"🪙 節約", editKindSpend:"🛒 出費",
       editDateAria:"日付", amtCurLabel:"金額と通貨", editAmtAria:"金額", editCurAria:"通貨",
-      noteLabel:"メモ", editNotePlaceholder:"どこで節約？", editNoteAria:"メモ",
+      noteLabel:"メモ", editNotePlaceholder:"どこで節約？", editNotePlaceholderSpend:"何に使った？", editNoteAria:"メモ",
       editRateLabel:"この日のレート", btnEditFetchRates:"↻ この日のレートを取得",
       editRateHint:"日付を変えると、自動でその日の欧州中央銀行レートを取得して入力します。「当時のレート」モードではこの数値で換算されます。取得できない（週末・祝日・オフライン）ときは手動で入力できます。",
       editSaveBtn:"変更を保存", editDeleteBtn:"この記録を削除",
@@ -1133,6 +1133,7 @@
   function setEditKind(k){
     editKind=k==="spend"?"spend":"save";
     $("#editKindSeg").querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-kind")===editKind)});
+    $("#editNote").placeholder=editKind==="spend"?t("editNotePlaceholderSpend"):t("editNotePlaceholder");
   }
   $("#editKindSeg").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;setEditKind(b.getAttribute("data-kind"))});
 
