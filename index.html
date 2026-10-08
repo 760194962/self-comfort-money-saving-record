@@ -283,36 +283,36 @@
 
     <div class="book-stats">
       <div class="s"><b id="stCount">0</b><span data-i18n="statCount">笔记录</span></div>
-      <div class="s"><b id="stMonth">¥0</b><span data-i18n="statMonth">本月净悭</span></div>
+      <div class="s"><b id="stMonth">¥0</b><span data-i18n="statMonth">本月净省</span></div>
       <div class="s"><b id="stBest">¥0</b><span data-i18n="statBest">单笔最高</span></div>
     </div>
   </section>
 
   <form class="deposit" id="form" autocomplete="off">
-    <div class="kind-seg" id="kindSeg" role="tablist" data-i18n-aria="kindSegAria" aria-label="记低呢笔系悭咗定系蚀咗">
-      <button type="button" data-kind="save" class="on" role="tab" data-i18n="kindSave">🪙 悭咗一笔</button>
+    <div class="kind-seg" id="kindSeg" role="tablist" data-i18n-aria="kindSegAria" aria-label="记低呢笔系省咗定系蚀咗">
+      <button type="button" data-kind="save" class="on" role="tab" data-i18n="kindSave">🪙 省了一笔</button>
       <button type="button" data-kind="spend" role="tab" data-i18n="kindSpend">🛒 蚀咗一笔</button>
     </div>
-    <h2 id="formTitle">啱啱又悭咗一笔？存入嚟 👇</h2>
+    <h2 id="formTitle">刚刚又省了一笔？存进来 👇</h2>
     <div class="amount-field">
       <span class="yen" id="amtSym">¥</span>
-      <input id="amt" inputmode="decimal" type="text" placeholder="250" data-i18n-aria="amtAria" aria-label="悭咗嘅金额">
+      <input id="amt" inputmode="decimal" type="text" placeholder="250" data-i18n-aria="amtAria" aria-label="省下的金额">
       <select class="cur-sel" id="entryCur" data-i18n-aria="entryCurAria" aria-label="币种"></select>
     </div>
     <div class="date-field">
       <span class="date-lab" data-i18n="dateLab">日期</span>
-      <input id="entryDate" type="date" data-i18n-aria="entryDateAria" aria-label="悭钱日期">
+      <input id="entryDate" type="date" data-i18n-aria="entryDateAria" aria-label="省钱日期">
     </div>
     <div class="note-field">
-      <input id="note" type="text" maxlength="40" placeholder="喺边度悭到？（例如：机票打折）" data-i18n-aria="noteAria" aria-label="备注">
+      <input id="note" type="text" maxlength="40" placeholder="省在哪儿了？（比如：机票打折）" data-i18n-aria="noteAria" aria-label="备注">
     </div>
     <div class="chips" id="chips"></div>
-    <button class="save-btn" id="saveBtn" type="submit">存入悭钱存款</button>
+    <button class="save-btn" id="saveBtn" type="submit">存进省钱存款</button>
   </form>
 
   <section class="ledger">
     <div class="ledger-head">
-      <h2 data-i18n="ledgerTitle">悭钱流水</h2>
+      <h2 data-i18n="ledgerTitle">省钱流水</h2>
       <span class="hint" id="ledgerHint"></span>
     </div>
     <div class="rows" id="rows"></div>
@@ -396,7 +396,7 @@
     <div class="sec">
       <div class="lab" data-i18n="typeLabel">类型</div>
       <div class="kind-seg" id="editKindSeg">
-        <button type="button" data-kind="save" data-i18n="editKindSave">🪙 悭钱</button>
+        <button type="button" data-kind="save" data-i18n="editKindSave">🪙 省下</button>
         <button type="button" data-kind="spend" data-i18n="editKindSpend">🛒 蚀钱</button>
       </div>
     </div>
@@ -417,7 +417,7 @@
 
     <div class="sec">
       <div class="lab" data-i18n="noteLabel">备注</div>
-      <input class="edit-input" id="editNote" type="text" maxlength="40" data-i18n-ph="editNotePlaceholder" placeholder="喺边度悭到？" data-i18n-aria="editNoteAria" aria-label="备注">
+      <input class="edit-input" id="editNote" type="text" maxlength="40" data-i18n-ph="editNotePlaceholder" placeholder="省在哪儿了？" data-i18n-aria="editNoteAria" aria-label="备注">
     </div>
 
     <div class="sec" id="editRateSec">
@@ -462,16 +462,16 @@
       bookAria:"省钱余额", brandName:"🪙 省钱存折",
       themeTitle:"切换深浅色", gearTitle:"设置 · 汇率 · 数据", gearAria:"设置",
       balLabel:"当前存款余额", dispCurAria:"显示币种",
-      statCount:"笔记录", statMonth:"本月净悭", statBest:"单笔最高",
-      kindSegAria:"记低呢笔系悭咗定系蚀咗", kindSave:"🪙 悭咗一笔", kindSpend:"🛒 蚀咗一笔",
-      formTitleSave:"啱啱又悭咗一笔？存入嚟 👇", formTitleSpend:"啱啱蚀咗一笔？记低佢，喺存款度扣 👇",
-      amtAria:"悭咗嘅金额", entryCurAria:"币种", dateLab:"日期", entryDateAria:"悭钱日期", noteAria:"备注",
-      notePlaceholderSave:"喺边度悭到？（例如：机票打折）", notePlaceholderSpend:"蚀喺边度？（例如：食晏 饭盒）",
-      saveBtnSave:"存入悭钱存款", saveBtnSpend:"记低呢笔蚀钱",
-      ledgerTitle:"悭钱流水",
+      statCount:"笔记录", statMonth:"本月净省", statBest:"单笔最高",
+      kindSegAria:"记低呢笔系省咗定系蚀咗", kindSave:"🪙 省了一笔", kindSpend:"🛒 蚀咗一笔",
+      formTitleSave:"刚刚又省了一笔？存进来 👇", formTitleSpend:"啱啱蚀咗一笔？记低佢，喺存款度扣 👇",
+      amtAria:"省下的金额", entryCurAria:"币种", dateLab:"日期", entryDateAria:"省钱日期", noteAria:"备注",
+      notePlaceholderSave:"省在哪儿了？（比如：机票打折）", notePlaceholderSpend:"蚀喺边度？（例如：食晏 饭盒）",
+      saveBtnSave:"存进省钱存款", saveBtnSpend:"记低呢笔蚀钱",
+      ledgerTitle:"省钱流水",
       ledgerHint:function(n){return "点一笔可编辑 · 共 "+n+" 笔"},
-      emptyBig:"仲未有记录～", emptySub:"悭落嘅第一笔钱，就喺上面存入嚟啦。",
-      rowSaveFallback:"悭钱", rowSpendFallback:"蚀钱", tagEx:"示例", delTitle:"删除这笔", delAria:"删除",
+      emptyBig:"还没有记录～", emptySub:"省下的第一笔钱，就从上面存进来吧。",
+      rowSaveFallback:"省钱", rowSpendFallback:"蚀钱", tagEx:"示例", delTitle:"删除这笔", delAria:"删除",
       clearExamples:"清空示例，开始记我自己的",
       tip:'数据只存在这台设备的浏览器里，不上传任何地方。<br>想换设备或备份？用下方 ⚙ 里的「导出 / 导入」。亏钱的时候翻出来看看你有多富 💚',
       modeNote:function(hist,cur){return (hist?"按记录当时的汇率折算":"按当前汇率折算")+" · 显示为 "+cur},
@@ -480,7 +480,7 @@
       rateUpdateFail:function(err){return "联网更新失败（"+err+"），仍用当前汇率"},
       sheetSettingsAria:"设置", settingsTitle:"设置", closeAria:"关闭",
       convLabel:"换算方式", modeCurrent:"按当前汇率", modeHistorical:"按当时汇率",
-      modeHintHistorical:"每笔按记账那天的真实汇率（欧洲央行数据，自动联网获取）折算——返转头睇就系「当时悭咗几多」。",
+      modeHintHistorical:"每笔按记账那天的真实汇率（欧洲央行数据，自动联网获取）折算——回头看就是「当时省了多少」。",
       modeHintCurrent:"所有记录都按最新汇率折算——看的是「现在值多少」。",
       rateLabel:"汇率 · 欧洲央行数据（可联网更新，也可手改）", btnRefreshRates:"↻ 联网更新汇率", refreshing:"更新中…",
       dataLabel:"数据 · 导出与导入", btnExport:"⬆ 导出", btnImportOpen:"⬇ 导入", exportAria:"导出数据",
@@ -496,9 +496,9 @@
       importConfirm:"导入会覆盖当前这台设备上的全部记录，确定吗？",
       imported:function(n){return '已导入 <span class="em">'+n+'</span> 笔记录 🎉'},
       resetConfirm:"确定清空全部记录？此操作无法撤销。", resetDone:"已清空，随时可以重新开始 🌱",
-      editSheetAria:"编辑记录", editTitle:"编辑这笔", typeLabel:"类型", editKindSave:"🪙 悭钱", editKindSpend:"🛒 蚀钱",
+      editSheetAria:"编辑记录", editTitle:"编辑这笔", typeLabel:"类型", editKindSave:"🪙 省下", editKindSpend:"🛒 蚀钱",
       editDateAria:"日期", amtCurLabel:"金额与币种", editAmtAria:"金额", editCurAria:"币种",
-      noteLabel:"备注", editNotePlaceholder:"喺边度悭到？", editNotePlaceholderSpend:"蚀喺边度？", editNoteAria:"备注",
+      noteLabel:"备注", editNotePlaceholder:"省在哪儿了？", editNotePlaceholderSpend:"蚀喺边度？", editNoteAria:"备注",
       editRateLabel:"这一天的汇率", btnEditFetchRates:"↻ 按这天联网取汇率",
       editRateHint:"改日期时会自动联网取当天的欧洲央行汇率并填入；「按当时汇率」模式下这笔就按这组数折算。取不到（周末/节假日/离线）时可手动填。",
       editSaveBtn:"保存修改", editDeleteBtn:"删除这笔",
@@ -516,16 +516,16 @@
       curName:{CNY:"人民币",USD:"美元",HKD:"港币",JPY:"日元"},
       sym:{CNY:"¥",USD:"$",HKD:"HK$",JPY:"JP¥"},
       order:["CNY","USD","HKD","JPY"],
-      generic:{save:"悭钱",spend:"蚀钱"},
-      presets:["机票","打折","优惠券","会员价","二手","忍住冇买","比价","返现","团购","海淘"],
+      generic:{save:"省钱",spend:"蚀钱"},
+      presets:["机票","打折","优惠券","会员价","二手","忍住没买","比价","返现","团购","海淘"],
       spendPresets:["餐饮","日用品","交通","购物","娱乐","咖啡","房租","水电","通讯","医疗"],
       iconSave:{"机票":"✈️","打折":"🏷️","优惠券":"🎟️","优惠码":"🎟️","会员":"⭐","二手":"♻️","忍住":"🛑","比价":"⚖️","返现":"💸","团购":"👥","自己做":"🍳","咖啡":"☕","海淘":"📦"},
       iconSpend:{"餐饮":"🍜","吃饭":"🍜","拉面":"🍜","便当":"🍱","食晏":"🍜","饭盒":"🍱","超市":"🛒","日用":"🧴","购物":"🛍️","衣":"👕","交通":"🚃","电车":"🚃","打车":"🚕","加油":"⛽","房租":"🏠","水":"💧","电":"💡","燃气":"🔥","通讯":"📱","手机":"📱","医疗":"💊","药":"💊","娱乐":"🎮","游戏":"🎮","书":"📚","酒":"🍺","旅行":"🧳","礼":"🎁"},
       seeds:function(now){return [
-        {id:"ex1",amount:250,cur:"CNY",kind:"save",note:"机票早啲订，悭返差价",ts:now-86400000*2,ex:true},
+        {id:"ex1",amount:250,cur:"CNY",kind:"save",note:"机票提前订，省下差价",ts:now-86400000*2,ex:true},
         {id:"ex2",amount:12,cur:"USD",kind:"save",note:"海淘用了优惠码",ts:now-86400000*5,ex:true},
         {id:"ex4",amount:1200,cur:"JPY",kind:"spend",note:"拉面 · 餐饮",ts:now-86400000*6,ex:true},
-        {id:"ex3",amount:120,cur:"CNY",kind:"save",note:"忍住冇买嗰件外套",ts:now-86400000*9,ex:true}
+        {id:"ex3",amount:120,cur:"CNY",kind:"save",note:"忍住没买那件外套",ts:now-86400000*9,ex:true}
       ]}
     },
     ja:{
@@ -602,7 +602,7 @@
   };
   // any-language generic note words (so switching language still hides placeholder notes)
   var GENERIC_ALL={};["zh","ja"].forEach(function(L){var g=I18N[L].generic;GENERIC_ALL[g.save]=1;GENERIC_ALL[g.spend]=1});
-  GENERIC_ALL["花费"]=1;GENERIC_ALL["省钱"]=1; // legacy zh fallbacks saved before the Cantonese rename
+  GENERIC_ALL["花费"]=1; // legacy zh spend fallback saved before the 蚀钱 rename
 
   // pick language: stored preference → browser hint → Chinese default
   var lang=loadJSON(LKEY,null);
